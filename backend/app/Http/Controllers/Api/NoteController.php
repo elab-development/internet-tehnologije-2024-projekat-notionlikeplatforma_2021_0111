@@ -99,7 +99,7 @@ class NoteController extends Controller
         return response()->json($note);
     }
 
-    /**
+    /*
      * Show the form for editing the specified resource.
      *
      * @param  int  $id

@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class ToDoList extends Model
+{
+    use HasFactory;
+    
+    protected $fillable = [
+        'title',
+        'description',
+        'user_id',
+    ];
+
+    // Svaka lista pripada jednom korisniku
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Lista može imati više taskova
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
+}

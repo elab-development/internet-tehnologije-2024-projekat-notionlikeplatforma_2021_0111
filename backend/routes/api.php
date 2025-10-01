@@ -38,9 +38,34 @@ Route::middleware('auth')->group(function () {
     Route::delete('/notes/{id}', [NoteController::class, 'destroy']); // brisanje
 });
 //rute za tasks
+ /*
 Route::middleware('auth')->group(function () {
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);
     Route::put('/tasks/{id}', [TaskController::class, 'update']);
     Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
+});*/
+Route::middleware('auth')->group(function () {
+    // TodoList rute
+    Route::get('/todolists', [TodoListController::class, 'index']);
+    Route::post('/todolists', [TodoListController::class, 'store']);
+    Route::get('/todolists/{id}', [TodoListController::class, 'show']);
+    Route::put('/todolists/{id}', [TodoListController::class, 'update']);
+    Route::delete('/todolists/{id}', [TodoListController::class, 'destroy']);
+
+    // Taskovi vezani za todo listu
+    Route::get('/todolists/{todolist}/tasks', [TaskController::class, 'index']); // prikaz svih taskova za listu
+    Route::post('/todolists/{todolist}/tasks', [TaskController::class, 'store']); // kreiranje taska u listi
+
+    // Pojedinačni taskovi
+    Route::put('/tasks/{id}', [TaskController::class, 'update']); // update taska
+    Route::delete('/tasks/{id}', [TaskController::class, 'destroy']); // brisanje taska
+});
+//rute za remindere
+Route::middleware('auth')->group(function () {
+    Route::get('/reminders', [ReminderController::class, 'index']);
+    Route::post('/reminders', [ReminderController::class, 'store']);
+    Route::get('/reminders/{id}', [ReminderController::class, 'show']);
+    Route::put('/reminders/{id}', [ReminderController::class, 'update']);
+    Route::delete('/reminders/{id}', [ReminderController::class, 'destroy']);
 });
