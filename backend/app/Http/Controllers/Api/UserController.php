@@ -63,7 +63,12 @@ return response()->json([
 }
 public function logout(Request $request)
 {
-    Auth::logout();
+    /*Auth::logout();
+
+    return response()->json([
+        'message' => 'Uspešno odjavljen'
+    ]);*/
+    $request->user()->currentAccessToken()->delete(); // briše trenutni token
 
     return response()->json([
         'message' => 'Uspešno odjavljen'

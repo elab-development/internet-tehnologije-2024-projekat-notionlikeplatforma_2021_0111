@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ToDoList extends Model
 {
     use HasFactory;
-    
+     protected $table = 'todo_lists';
     protected $fillable = [
         'title',
         'description',
@@ -24,6 +24,6 @@ class ToDoList extends Model
     // Lista može imati više taskova
     public function tasks()
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class,'todo_list_id');
     }
 }

@@ -154,4 +154,69 @@ class NoteController extends Controller
             'message' => 'Beleška uspešno obrisana'
         ]);
     }
+
+  /*  public function search(Request $request)
+{
+    $query = $request->input('q');
+
+    if (!$query) {
+        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
+    }
+
+    $notes = auth()->user()->notes()
+        ->where('title', 'LIKE', "%{$query}%")
+        ->get();
+
+    return response()->json($notes);
+}*/public function search(Request $request)
+{
+    $query = $request->input('q');
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Nema ulogovanog korisnika'], 401);
+    }
+
+    if (!$query) {
+        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
+    }
+
+    $notes = $user->notes()
+        ->where('title', 'LIKE', "%{$query}%")
+        ->get();
+
+    return response()->json([
+        'user_id' => $user->id,
+        'query' => $query,
+        'notes' => $notes
+    ]);
+}
+
+
+
+
+public function filter(Request $request)
+{
+    $userId = $request->input('user_id'); // filter po korisniku
+    $date = $request->input('date'); // filter po datumu
+
+    $notes = Note::query();
+
+    if ($userId) {
+        $notes->where('user_id', $userId);
+    }
+    if ($date) {
+        $notes->whereDate('created_at', $date);
+    }
+
+    return response()->json($notes->get());
+}
+public function paginate(Request $request)
+{
+    $perPage = $request->input('per_page', 1); // broj beleški po stranici
+    $notes = Note::paginate($perPage);
+
+    return response()->json($notes);
+}
+
 }

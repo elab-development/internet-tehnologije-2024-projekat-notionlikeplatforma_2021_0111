@@ -15,9 +15,8 @@ class Task extends Model
         'due_date',
     ];
 
-    // svaki task pripada jednom korisniku
-    public function user()
+    public function todolist()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(ToDoList::class,'todo_list_id');
     }
 }
