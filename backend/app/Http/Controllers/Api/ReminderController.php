@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Reminder;
 use Illuminate\Http\Request;
+use App\Http\Resources\ReminderResource;
 
 class ReminderController extends Controller
 {
@@ -19,20 +20,23 @@ class ReminderController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'remind_at' => 'required|date',
             'task_id' => 'nullable|exists:tasks,id',
         ]);
 
-        $reminder = $request->user()->reminders()->create([
-            'title' => $request->title,
-            'remind_at' => $request->remind_at,
-            'task_id' => $request->task_id, // ako se vezuje za task
+        $reminder = Reminder::create([
+            'title'       => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'remind_at'   => $validated['remind_at'],
+            'task_id'     => $validated['task_id'] ?? null,
+            'user_id'     => auth()->id(),
         ]);
 
-        return response()->json([
-            'message' => 'Reminder uspešno kreiran',
-            'reminder' => $reminder
-        ], 201);
+        return (new ReminderResource($reminder))
+            ->additional(['message' => 'Reminder uspešno kreiran'])
+            ->response()
+            ->setStatusCode(201);
     }
 
     // Prikaz jednog remindera
@@ -47,19 +51,19 @@ class ReminderController extends Controller
     {
         $reminder = $request->user()->reminders()->findOrFail($id);
 
-        $request->validate([
-            'title' => 'sometimes|string|max:255',
-            'remind_at' => 'sometimes|date',
-            'task_id' => 'nullable|exists:tasks,id',
+        $validated = $request->validate([
+            'title'       => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'remind_at'   => 'sometimes|date|after:now',
+            'task_id'     => 'sometimes|exists:tasks,id',
         ]);
 
-        $reminder->update($request->only(['title', 'remind_at', 'task_id']));
-
-        return response()->json([
-            'message' => 'Reminder uspešno ažuriran',
-            'reminder' => $reminder
-        ]);
-    }
+        $reminder->update($validated);
+        return (new ReminderResource($reminder))
+            ->additional(['message' => 'Reminder uspešno ažuriran'])
+            ->response()
+            ->setStatusCode(201);
+   }
 
     // Brisanje remindera
     public function destroy(Request $request, $id)

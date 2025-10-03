@@ -46,8 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/todolists/{todolist}/tasks', [TaskController::class, 'store']); // kreiranje taska u listi
 
     // Pojedinačni taskovi
-    Route::put('/tasks/{id}', [TaskController::class, 'update']); // update taska
-    Route::delete('/tasks/{id}', [TaskController::class, 'destroy']); // brisanje taska
+    Route::put('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'update']); // update taska
+    Route::delete('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'destroy']); // brisanje taska
     Route::get('/reminders', [ReminderController::class, 'index']);
     Route::post('/reminders', [ReminderController::class, 'store']);
     Route::get('/reminders/{id}', [ReminderController::class, 'show']);

@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class NoteResource extends JsonResource
+class ToDoListResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -17,7 +17,8 @@ class NoteResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'content' => $this->content,
+            'description' => $this->description,
+            'tasks' => TaskResource::collection($this->whenLoaded('tasks')),
             //'created_at' => $this->created_at,
             //'updated_at' => $this->updated_at,
         ];

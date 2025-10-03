@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Task;
 use App\Models\ToDoList;
+use App\Http\Resources\TaskResource;
 
 class TaskController extends Controller
 {/*
@@ -77,7 +78,7 @@ class TaskController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return response()->json($todolist->tasks);
+        return TaskResource::collection($todolist->tasks);
     }
 
     // Kreiranje taska u određenoj todo listi
@@ -87,24 +88,24 @@ class TaskController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $request->validate([
+        $validated=$request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'details' => 'nullable|string',
             'status' => 'nullable|in:pending,done',
             'due_date' => 'nullable|date',
         ]);
 
         $task = $todolist->tasks()->create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'status' => $request->status ?? 'pending',
-            'due_date' => $request->due_date,
+            'title'   => $validated['title'],
+            'details' => $validated['details'] ?? null,
+            'status'  => $validated['status'] ?? 'pending',
+            'due_date'=> $validated['due_date'] ?? null,
         ]);
 
-        return response()->json([
-            'message' => 'Task uspešno kreiran',
-            'task' => $task
-        ], 201);
+        return (new TaskResource($task))
+            ->additional(['message' => 'Task uspešno kreiran'])
+            ->response()
+            ->setStatusCode(201);
     }
 
     // Update taska u okviru todo liste korisnika
@@ -117,19 +118,15 @@ class TaskController extends Controller
         // vraca task iz odredjene liste
         $task = $todolist->tasks()->findOrFail($taskId);
 
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
+            'details' => 'sometimes|string',
             'status' => 'sometimes|in:pending,done',
             'due_date' => 'sometimes|date',
         ]);
 
-        $task->update($request->only(['title', 'description', 'status', 'due_date']));
-
-        return response()->json([
-            'message' => 'Task uspešno ažuriran',
-            'task' => $task
-        ]);
+         $task->update($validated);
+         return new TaskResource($task);
     }
 
     // Brisanje taska u okviru todo liste

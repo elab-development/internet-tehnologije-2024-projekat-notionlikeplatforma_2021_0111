@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -29,10 +30,8 @@ class UserController extends Controller
             'role' => $request->role ?? 'user',
         ]);
 
-        return response()->json([
-            'message' => 'Korisnik uspešno registrovan',
-            'user' => $user
-        ], 201);
+        return (new UserResource($user))
+            ->additional(['message' => 'Korisnik uspešno registrovan']);
     }
 
     // Login
@@ -54,12 +53,11 @@ class UserController extends Controller
     $user = Auth::user();
 $token = $user->createToken('api-token')->plainTextToken;
 
-return response()->json([
-    'message' => 'Uspešno ulogovan',
-    'token' => $token,
-    'user' => $user
-]);
-
+return (new UserResource($user))
+            ->additional([
+                'message' => 'Uspešno ulogovan',
+                'token'   => $token,
+            ]);
 }
 public function logout(Request $request)
 {
@@ -76,7 +74,7 @@ public function logout(Request $request)
 }
 public function me(Request $request)
 {
-    return response()->json($request->user());
+    return new UserResource($request->user());
 }
 public function update(Request $request)
     {
@@ -102,10 +100,8 @@ public function update(Request $request)
 
         $user->save();
 
-        return response()->json([
-            'message' => 'Profil uspešno ažuriran',
-            'user' => $user
-        ]);
+        return (new UserResource($user))
+            ->additional(['message' => 'Profil uspešno ažuriran']);
     }
     public function delete(Request $request)
     {

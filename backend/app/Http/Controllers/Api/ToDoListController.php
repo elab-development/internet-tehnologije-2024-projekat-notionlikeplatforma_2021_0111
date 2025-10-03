@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\ToDoList;
+use App\Http\Resources\ToDoListResource;
 
 class ToDoListController extends Controller
 {
@@ -17,7 +18,11 @@ class ToDoListController extends Controller
     public function index()
     {
         //vraca sve todoliste zajedno sa pripadajucim taskovima
-        return TodoList::where('user_id', auth()->id())->with('tasks')->get();
+        $lists = ToDoList::where('user_id', auth()->id())
+        ->with('tasks')
+        ->get();
+
+        return ToDoListResource::collection($lists);
     }
 
     /**
@@ -47,11 +52,10 @@ class ToDoListController extends Controller
         'title' => $validated['title'],
         'description' => $validated['description'] ?? null,
     ]);
-
-    return response()->json([
-        'message' => 'To-do lista uspešno kreirana',
-        'list' => $list
-    ], 201);
+    return (new ToDoListResource($list))
+            ->additional(['message' => 'To-do lista uspešno kreirana'])
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -62,8 +66,10 @@ class ToDoListController extends Controller
      */
     public function show($id)
     {
-        $list = auth()->user()->todoLists()->with('tasks')->findOrFail($id);
-        return response()->json($list);
+        /*$list = auth()->user()->todoLists()->with('tasks')->findOrFail($id);
+        return response()->json($list);*/
+         $list = TodoList::findOrFail($id);
+        return new ToDoListResource($list);
     }
 
     /**
@@ -94,11 +100,8 @@ class ToDoListController extends Controller
         ]);
 
         $list->update($validated);
-
-        return response()->json([
-            'message' => 'To-do lista uspešno ažurirana',
-            'todo_list' => $list
-        ]);
+        return (new ToDoListResource($list))
+                ->additional(['message' => 'Beleška uspešno ažurirana']);
     }
 
     /**

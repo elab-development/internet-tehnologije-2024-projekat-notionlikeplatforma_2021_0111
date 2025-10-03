@@ -4,7 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class NoteResource extends JsonResource
+class TaskResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,10 @@ class NoteResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'title' => $this->title,
-            'content' => $this->content,
-            //'created_at' => $this->created_at,
-            //'updated_at' => $this->updated_at,
+            'title'=>$this->title,
+            'details' => $this->details,
+            'status'   => $this->status,
+            //'todo_list_id'=> $this->todo_list_id, // možeš izbaciti ako ne želiš FK
         ];
     }
 }
