@@ -12,8 +12,6 @@ class Reminder extends Model
         'title',
         'description',
         'remind_at',
-        'user_id',
-        'task_id'
     ];
     //svaki reminder pripada jednom useru
     public function user()

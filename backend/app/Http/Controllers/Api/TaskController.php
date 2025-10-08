@@ -71,7 +71,7 @@ class TaskController extends Controller
             'message' => 'Task uspešno obrisan'
         ]);
     }*/
-         public function index(TodoList $todolist)
+         public function index(ToDoList $todolist)
     {
         // Provera da li trenutni korisnik ima pristup listi
         if ($todolist->user_id !== auth()->id()) {
@@ -82,7 +82,7 @@ class TaskController extends Controller
     }
 
     // Kreiranje taska u određenoj todo listi
-    public function store(Request $request, TodoList $todolist)
+    public function store(Request $request, ToDoList $todolist)
     {
         if ($todolist->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -109,7 +109,7 @@ class TaskController extends Controller
     }
 
     // Update taska u okviru todo liste korisnika
-    public function update(Request $request, TodoList $todolist, $taskId)
+    public function update(Request $request, ToDoList $todolist, $taskId)
     {
         if ($todolist->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -130,7 +130,7 @@ class TaskController extends Controller
     }
 
     // Brisanje taska u okviru todo liste
-    public function destroy(TodoList $todolist, $taskId)
+    public function destroy(ToDoList $todolist, $taskId)
     {
         if ($todolist->user_id !== auth()->id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -141,6 +141,48 @@ class TaskController extends Controller
 
         return response()->json(['message' => 'Task uspešno obrisan']);
     }
+    public function search(Request $request, $id)
+{
+    $query = $request->input('q');
+    $user = auth()->user();
+
+    if (!$query) {
+        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
+    }
+
+    // Pronadji to-do listu samo ako pripada ulogovanom korisniku
+    $todoList = $user->todoLists()->findOrFail($id);
+
+    // Pretrazi taskove unutar te liste
+    $tasks = $todoList->tasks()
+        ->where(function ($queryBuilder) use ($query) {
+            $queryBuilder->where('title', 'LIKE', "%{$query}%")
+                         ->orWhere('details', 'LIKE', "%{$query}%");
+        })
+        ->get();
+
+    return TaskResource::collection($tasks);
+}
+public function filter(Request $request, ToDoList $todolist)
+{
+    $status = $request->input('status'); // pending ili done
+
+    if (!$status) {
+        return response()->json(['message' => 'Parametar status je obavezan.'], 400);
+    }
+//validacija
+    if (!in_array($status, ['pending', 'done'])) {
+        return response()->json(['message' => 'Status mora biti pending ili done.'], 400);
+    }
+
+    $tasks = $todolist->tasks()
+        ->where('status', $status)
+        ->get();
+
+    return TaskResource::collection($tasks);
+}
+
+
 }
 
 

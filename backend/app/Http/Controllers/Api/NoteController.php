@@ -170,13 +170,15 @@ class NoteController extends Controller
         ->get();
 
     return response()->json($notes);
-}*/public function search(Request $request)
+}*/
+
+public function search(Request $request)
 {
     $query = $request->input('q');
     $user = auth()->user();
 
     if (!$user) {
-        return response()->json(['message' => 'Nema ulogovanog korisnika'], 401);
+        return response()->json(['message' => 'Niste ulogovani!'], 401);
     }
 
     if (!$query) {
@@ -184,23 +186,19 @@ class NoteController extends Controller
     }
 
     $notes = $user->notes()
-        ->where('title', 'LIKE', "%{$query}%")
-        ->orWhere('content', 'LIKE', "%$query%")
-        ->get();
+    ->where(function ($queryBuilder) use ($query) {
+        $queryBuilder->where('title', 'LIKE', "%{$query}%")
+                     ->orWhere('content', 'LIKE', "%{$query}%");
+    })
+    ->get();
 
-    /*return response()->json([
-        'user_id' => $user->id,
-        'query' => $query,
-        'notes' => $notes
-    ]);*/
     return NoteResource::collection($notes);
 }
 
 
 
 
-public function filter(Request $request)
-{
+/*
     $userId = $request->input('user_id'); // filter po korisniku
     $date = $request->input('date'); // filter po datumu
 
@@ -214,14 +212,37 @@ public function filter(Request $request)
     }
 
     /*return response()->json($notes->get());*/
-    return NoteResource::collection($notes);
+    //return NoteResource::collection($notes);*/public function filter(Request $request)
 
+public function filter(Request $request)
+{
+    $user =  auth()->user();
+    $from = $request->input('from');
+    $to = $request->input('to');
+
+    $query = Note::where('user_id', $user->id);
+
+    if ($from && $to) {
+        $query->whereBetween('created_at', [$from, $to]);
+    } elseif ($from) {
+        $query->whereDate('created_at', '>=', $from);
+    } elseif ($to) {
+        $query->whereDate('created_at', '<=', $to);
+    }
+
+    $notes = $query->orderBy('created_at', 'desc')->get();
+    return NoteResource::collection($notes);
 }
+
 public function paginate(Request $request)
 {
-    $perPage = $request->input('per_page', 1); // broj beleški po stranici
-    $notes = Note::paginate($perPage);
-     return NoteResource::collection($notes);
+    $perPage = $request->input('per_page', 2); // broj beleški po stranici
+    $user = auth()->user();
+
+    // Beleške samo ulogovanog korisnika
+    $notes = $user->notes()->paginate($perPage);
+
+    return NoteResource::collection($notes);
 }
 
 }

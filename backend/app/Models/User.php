@@ -46,12 +46,14 @@ class User extends Authenticatable
 {
     return $this->hasMany(Note::class);
 }
-/*public function tasks()
-{
-    return $this->hasMany(Task::class);
-}*/
+
 public function todoLists()
 {
     return $this->hasMany(ToDoList::class);
 }
+public function reminders()
+{
+    return $this->hasMany(Reminder::class);
+}
+
 }

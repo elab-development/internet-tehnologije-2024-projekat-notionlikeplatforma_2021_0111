@@ -10,27 +10,36 @@ use App\Http\Resources\ReminderResource;
 class ReminderController extends Controller
 {
     // Sve reminder-e za trenutno ulogovanog korisnika
-    public function index(Request $request)
+    /*public function index(Request $request)
     {
         return $request->user()->reminders()->with('task')->get();
-    }
+    }*/
+    public function index(Request $request)
+{
+    $reminders = $request->user()
+        ->reminders()
+        ->with('task')
+        ->get();
+
+    return ReminderResource::collection($reminders);
+}
+
 
     // Kreiranje novog remindera
     public function store(Request $request)
     {
-        $request->validate([
+        $validated=$request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'remind_at' => 'required|date',
             'task_id' => 'nullable|exists:tasks,id',
         ]);
 
-        $reminder = Reminder::create([
+        $reminder = auth()->user()->reminders()->create([
             'title'       => $validated['title'],
             'description' => $validated['description'] ?? null,
             'remind_at'   => $validated['remind_at'],
             'task_id'     => $validated['task_id'] ?? null,
-            'user_id'     => auth()->id(),
         ]);
 
         return (new ReminderResource($reminder))
@@ -39,12 +48,17 @@ class ReminderController extends Controller
             ->setStatusCode(201);
     }
 
-    // Prikaz jednog remindera
-    public function show(Request $request, $id)
-    {
-        $reminder = $request->user()->reminders()->findOrFail($id);
-        return response()->json($reminder);
-    }
+public function show(Request $request, $id)
+{
+    $reminder = $request->user()
+                        ->reminders()
+                        ->with('task') 
+                        ->findOrFail($id);
+
+    return (new ReminderResource($reminder))
+            ->additional(['message' => 'Reminder uspešno učitan']);
+}
+
 
     // Update remindera
     public function update(Request $request, $id)
@@ -73,4 +87,24 @@ class ReminderController extends Controller
 
         return response()->json(['message' => 'Reminder obrisan']);
     }
+    public function search(Request $request)
+{
+    $query = $request->input('q');
+    $user = auth()->user();
+
+    if (!$query) {
+        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
+    }
+
+    $reminders=$user->reminders()
+    ->where(function ($queryBuilder) use ($query) {
+        $queryBuilder->where('title', 'LIKE', "%{$query}%")
+                     ->orWhere('description', 'LIKE', "%{$query}%");
+    })
+    ->with('task')
+    ->get();
+
+    return ReminderResource::collection($reminders);
+}
+
 }

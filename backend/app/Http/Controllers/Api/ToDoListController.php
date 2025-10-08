@@ -101,7 +101,7 @@ class ToDoListController extends Controller
 
         $list->update($validated);
         return (new ToDoListResource($list))
-                ->additional(['message' => 'Beleška uspešno ažurirana']);
+                ->additional(['message' => 'To-do lista je uspešno ažurirana']);
     }
 
     /**
@@ -119,4 +119,27 @@ class ToDoListController extends Controller
             'message' => 'To-do lista uspešno obrisana'
         ]);
     }
+    public function search(Request $request)
+{
+    $query = $request->input('q');
+    $user = auth()->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Niste ulogovani!'], 401);
+    }
+
+    if (!$query) {
+        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
+    }
+
+    $todolists = $user->todoLists()
+    ->where(function ($queryBuilder) use ($query) {
+        $queryBuilder->where('title', 'LIKE', "%{$query}%")
+                     ->orWhere('description', 'LIKE', "%{$query}%");
+    })
+    ->with('tasks')
+    ->get();
+
+    return ToDoListResource::collection($todolists);
+}
 }

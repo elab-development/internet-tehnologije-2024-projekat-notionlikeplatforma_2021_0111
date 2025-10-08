@@ -12,7 +12,6 @@ class ToDoList extends Model
     protected $fillable = [
         'title',
         'description',
-        'user_id',
     ];
 
     // Svaka lista pripada jednom korisniku

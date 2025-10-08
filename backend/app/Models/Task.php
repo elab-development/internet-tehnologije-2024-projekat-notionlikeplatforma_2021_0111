@@ -19,4 +19,10 @@ class Task extends Model
     {
         return $this->belongsTo(ToDoList::class,'todo_list_id');
     }
+    public function reminder()
+{
+    return $this->hasOne(Reminder::class);
+}
+
+   
 }

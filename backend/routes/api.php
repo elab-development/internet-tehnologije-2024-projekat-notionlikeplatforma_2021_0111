@@ -35,19 +35,24 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('notes', NoteController::class);
     
     // TodoList rute
+    Route::get('/todolists/search', [ToDoListController::class, 'search']);
     Route::get('/todolists', [ToDoListController::class, 'index']);
     Route::post('/todolists', [ToDoListController::class, 'store']);
     Route::get('/todolists/{id}', [ToDoListController::class, 'show']);
     Route::put('/todolists/{id}', [ToDoListController::class, 'update']);
     Route::delete('/todolists/{id}', [ToDoListController::class, 'destroy']);
+    
 
     // Taskovi vezani za todo listu
+    Route::get('/todolists/{todolist}/tasks/search', [TaskController::class, 'search']);
+    Route::get('/todolists/{todolist}/tasks/filter', [TaskController::class, 'filter']);
     Route::get('/todolists/{todolist}/tasks', [TaskController::class, 'index']); // prikaz svih taskova za listu
     Route::post('/todolists/{todolist}/tasks', [TaskController::class, 'store']); // kreiranje taska u listi
 
     // Pojedinačni taskovi
     Route::put('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'update']); // update taska
-    Route::delete('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'destroy']); // brisanje taska
+    Route::delete('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'destroy']);
+    Route::get('/reminders/search', [ReminderController::class, 'search']);
     Route::get('/reminders', [ReminderController::class, 'index']);
     Route::post('/reminders', [ReminderController::class, 'store']);
     Route::get('/reminders/{id}', [ReminderController::class, 'show']);
