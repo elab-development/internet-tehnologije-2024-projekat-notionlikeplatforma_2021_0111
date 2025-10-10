@@ -59,6 +59,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/reminders/{id}', [ReminderController::class, 'update']);
     Route::delete('/reminders/{id}', [ReminderController::class, 'destroy']);
 });
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
+});
 
 //rute za tasks
  /*

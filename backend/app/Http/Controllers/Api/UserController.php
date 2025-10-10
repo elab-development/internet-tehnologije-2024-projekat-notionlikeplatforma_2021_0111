@@ -74,7 +74,17 @@ public function logout(Request $request)
 }
 public function me(Request $request)
 {
-    return new UserResource($request->user());
+    return (new UserResource($request->user()))
+    ->additional(['message' => 'Podaci o Vašem profilu']);
+}
+public function index()
+{
+    $users = User::all();
+
+    return response()->json([
+        'message' => 'Uspesno ucitani svi korisnici',
+        'data' => $users
+    ]);
 }
 public function update(Request $request)
     {
@@ -112,4 +122,26 @@ public function update(Request $request)
             'message' => 'Nalog je uspešno obrisan'
         ]);
     }
+    public function deleteUser($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json([
+            'message' => 'Korisnik nije pronađen.'
+        ], 404);
+    }
+
+    if ($user->id === auth()->id()) {
+        return response()->json([
+            'message' => 'Admin ne sme obrisati sopstveni nalog.'
+        ], 403);
+    }
+
+    $user->delete();
+
+    return response()->json([
+        'message' => 'Korisnik je uspešno obrisan.'
+    ]);
+}
 }
