@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import NoteEditor from "./pages/NoteEditor";
 import ToDoPage from "./pages/ToDoPage";
 import About from "./pages/About";
+import './App.css';
 
 function App() {
   return (
