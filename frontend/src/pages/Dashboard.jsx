@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 function Dashboard() {
-  const [notes, setNotes] = useState([]);
-  const [todos, setTodos] = useState([]);
+  const [notes, setNotes] = useLocalStorage("notes", []);
+  const [todos, setTodos] = useLocalStorage("todos", []);
   const navigate = useNavigate();
 
   // Note functions
@@ -20,6 +20,11 @@ function Dashboard() {
 
   const openNote = (id) => navigate(`/note/${id}`);
 
+  const deleteNote = (id) => {
+    const updatedNotes = notes.filter((note) => note.id !== id);
+    setNotes(updatedNotes);
+  };
+
   // To-Do functions
   const addToDo = () => {
     const newToDo = {
@@ -32,6 +37,11 @@ function Dashboard() {
 
   const openToDo = (id) => navigate(`/todo/${id}`);
 
+  const deleteToDo = (id) => {
+    const updatedTodos = todos.filter((todo) => todo.id !== id);
+    setTodos(updatedTodos);
+  };
+
   return (
     <div className="dashboard">
       <h2>Welcome back!</h2>
@@ -41,12 +51,14 @@ function Dashboard() {
         <Button label="Add Note" onClick={addNote} />
         <div className="notes-container">
           {notes.map((note) => (
-            <Card
-              key={note.id}
-              title={note.title}
-              description={note.content}
-              onClick={() => openNote(note.id)}
-            />
+            <div key={note.id} className="note-wrapper">
+              <Card
+                title={note.title}
+                description={note.content}
+                onClick={() => openNote(note.id)}
+              />
+              <Button label="Delete" onClick={() => deleteNote(note.id)} />
+            </div>
           ))}
         </div>
       </section>
@@ -56,12 +68,14 @@ function Dashboard() {
         <Button label="Add To-Do List" onClick={addToDo} />
         <div className="todos-container">
           {todos.map((todo) => (
-            <Card
-              key={todo.id}
-              title={todo.title}
-              description={`${todo.tasks.length} tasks`}
-              onClick={() => openToDo(todo.id)}
-            />
+            <div key={todo.id} className="todo-wrapper">
+              <Card
+                title={todo.title}
+                description={`${todo.tasks.length} tasks`}
+                onClick={() => openToDo(todo.id)}
+              />
+              <Button label="Delete" onClick={() => deleteToDo(todo.id)} />
+            </div>
           ))}
         </div>
       </section>

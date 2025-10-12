@@ -1,28 +1,54 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../components/Button";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 function ToDoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [todos, setTodos] = useLocalStorage("todos", []);
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
+
+  // Učitaj zadatke za trenutno todo
+  useEffect(() => {
+    const current = todos.find((t) => t.id === parseInt(id));
+    if (current) setTasks(current.tasks);
+  }, [id, todos]);
 
   const addTask = () => {
     if (newTask.trim() === "") return;
     const newItem = { id: Date.now(), text: newTask, done: false, reminder: "" };
-    setTasks([...tasks, newItem]);
+    const updatedTasks = [...tasks, newItem];
+    setTasks(updatedTasks);
+
+    // Ažuriraj lokalno todos
+    const updatedTodos = todos.map((t) =>
+      t.id === parseInt(id) ? { ...t, tasks: updatedTasks } : t
+    );
+    setTodos(updatedTodos);
+
     setNewTask("");
   };
 
   const toggleDone = (taskId) => {
-    setTasks(
-      tasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t))
+    const updatedTasks = tasks.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t));
+    setTasks(updatedTasks);
+
+    const updatedTodos = todos.map((t) =>
+      t.id === parseInt(id) ? { ...t, tasks: updatedTasks } : t
     );
+    setTodos(updatedTodos);
   };
 
   const setReminder = (taskId, reminder) => {
-    setTasks(tasks.map((t) => (t.id === taskId ? { ...t, reminder } : t)));
+    const updatedTasks = tasks.map((t) => (t.id === taskId ? { ...t, reminder } : t));
+    setTasks(updatedTasks);
+
+    const updatedTodos = todos.map((t) =>
+      t.id === parseInt(id) ? { ...t, tasks: updatedTasks } : t
+    );
+    setTodos(updatedTodos);
   };
 
   return (
