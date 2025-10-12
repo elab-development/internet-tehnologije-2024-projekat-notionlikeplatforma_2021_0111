@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -5,10 +6,10 @@ import useLocalStorage from "../hooks/useLocalStorage";
 
 function Dashboard() {
   const [notes, setNotes] = useLocalStorage("notes", []);
+  const [searchTerm, setSearchTerm] = useState("");
   const [todos, setTodos] = useLocalStorage("todos", []);
   const navigate = useNavigate();
 
-  // Note functions
   const addNote = () => {
     const newNote = {
       id: Date.now(),
@@ -25,7 +26,10 @@ function Dashboard() {
     setNotes(updatedNotes);
   };
 
-  // To-Do functions
+  const filteredNotes = notes.filter((note) =>
+    note.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const addToDo = () => {
     const newToDo = {
       id: Date.now(),
@@ -48,9 +52,24 @@ function Dashboard() {
 
       <section>
         <h3>Your Notes</h3>
+
+        <input
+          type="text"
+          placeholder="Search notes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: "0.5em",
+            marginBottom: "1em",
+            width: "250px",
+            borderRadius: "5px",
+            border: "1px solid #ccc",
+          }}
+        />
+
         <Button label="Add Note" onClick={addNote} />
         <div className="notes-container">
-          {notes.map((note) => (
+          {filteredNotes.map((note) => (
             <div key={note.id} className="note-wrapper">
               <Card
                 title={note.title}
