@@ -1,6 +1,6 @@
 import { Link, useLocation, useParams } from "react-router-dom";
 
-function Breadcrumbs({ notes }) {
+function Breadcrumbs({ notes = [], todos = [] }) {
   const location = useLocation();
   const params = useParams();
 
@@ -17,9 +17,19 @@ function Breadcrumbs({ notes }) {
         const isLast = index === pathnames.length - 1;
         let displayName = name;
 
-        if (name === "note" && params.id && notes) {
+        if (name === "note" && params.id && notes.length) {
           const note = notes.find((n) => n.id === parseInt(params.id));
           if (note) displayName = note.title;
+        }
+
+        if (name === "todo" && params.id && todos.length) {
+          const todo = todos.find((t) => t.id === parseInt(params.id));
+          if (todo) displayName = todo.title;
+        }
+
+        if (!["note", "todo"].includes(name)) {
+          displayName = name.replace(/-/g, " ");
+          displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
         }
 
         return (

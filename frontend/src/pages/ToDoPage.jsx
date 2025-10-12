@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Button from "../components/Button";
+import Breadcrumbs from "../components/Breadcrumbs";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 function ToDoPage() {
@@ -10,7 +11,6 @@ function ToDoPage() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
 
-  // Učitaj zadatke za trenutno todo
   useEffect(() => {
     const current = todos.find((t) => t.id === parseInt(id));
     if (current) setTasks(current.tasks);
@@ -22,7 +22,6 @@ function ToDoPage() {
     const updatedTasks = [...tasks, newItem];
     setTasks(updatedTasks);
 
-    // Ažuriraj lokalno todos
     const updatedTodos = todos.map((t) =>
       t.id === parseInt(id) ? { ...t, tasks: updatedTasks } : t
     );
@@ -53,6 +52,7 @@ function ToDoPage() {
 
   return (
     <div className="todo-page">
+      <Breadcrumbs todos={todos} />
       <h2>To-Do List {id}</h2>
 
       <div className="add-task">

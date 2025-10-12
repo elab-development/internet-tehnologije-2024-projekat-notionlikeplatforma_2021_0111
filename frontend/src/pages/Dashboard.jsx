@@ -57,7 +57,7 @@ function Dashboard() {
     <div className="dashboard">
       <h2>Welcome back!</h2>
 
-      <Breadcrumbs notes={notes} />
+      <Breadcrumbs notes={notes} todos={todos} />
       <section>
         <h3>Your Notes</h3>
         <input
