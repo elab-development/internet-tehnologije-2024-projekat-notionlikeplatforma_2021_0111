@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Button from "../components/Button";
+import Breadcrumbs from "../components/Breadcrumbs";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 function NoteEditor() {
@@ -8,6 +9,7 @@ function NoteEditor() {
   const navigate = useNavigate();
   const [notes, setNotes] = useLocalStorage("notes", []);
   const [note, setNote] = useState({ title: "", content: "" });
+
 
   useEffect(() => {
     const current = notes.find((n) => n.id === parseInt(id));
@@ -22,6 +24,7 @@ function NoteEditor() {
 
   return (
     <div className="note-editor">
+      <Breadcrumbs notes={notes} />
       <input
         value={note.title}
         onChange={(e) => setNote({ ...note, title: e.target.value })}
