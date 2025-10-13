@@ -12,6 +12,9 @@ function Dashboard() {
   const [searchToDo, setSearchToDo] = useState("");
   const navigate = useNavigate();
 
+  const [notePage, setNotePage] = useState(1);
+  const [todoPage, setTodoPage] = useState(1);
+  const itemsPerPage = 5;
 
   const addNote = () => {
     const newNote = {
@@ -32,6 +35,10 @@ function Dashboard() {
   const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
+  const startNoteIndex = (notePage - 1) * itemsPerPage;
+  const currentNotes = filteredNotes.slice(startNoteIndex, startNoteIndex + itemsPerPage);
 
   const addToDo = () => {
     const newToDo = {
@@ -75,7 +82,7 @@ function Dashboard() {
         />
         <Button label="Add Note" onClick={addNote} />
         <div className="notes-container">
-          {filteredNotes.map((note) => (
+          {currentNotes.map((note) => (
             <div key={note.id} className="note-wrapper">
               <Card
                 title={note.title}
@@ -85,6 +92,21 @@ function Dashboard() {
               <Button label="Delete" onClick={() => deleteNote(note.id)} />
             </div>
           ))}
+        </div>
+        <div style={{ marginTop: "1em" }}>
+          <Button
+            label="Previous"
+            onClick={() => setNotePage((p) => Math.max(p - 1, 1))}
+            disabled={notePage === 1}
+          />
+          <span style={{ margin: "0 1em" }}>
+            Page {notePage} of {totalNotePages || 1}
+          </span>
+          <Button
+            label="Next"
+            onClick={() => setNotePage((p) => Math.min(p + 1, totalNotePages))}
+            disabled={notePage === totalNotePages || totalNotePages === 0}
+          />
         </div>
       </section>
 
