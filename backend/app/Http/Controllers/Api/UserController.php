@@ -37,6 +37,7 @@ class UserController extends Controller
     // Login
     public function login(Request $request)
 {
+     \Log::info($request->all()); 
     $request->validate([
         'email' => 'required|email',
         'password' => 'required|string',

@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PrivateRoute from "./routes/PrivateRoute";
 import Navbar from "./components/Navbar";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
@@ -13,7 +14,9 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<PrivateRoute>
+        <Dashboard />
+    </PrivateRoute>} />
         <Route path="/note/:id" element={<NoteEditor />} />
         <Route path="/todo/:id" element={<ToDoPage />} />
         <Route path="/about" element={<About />} />

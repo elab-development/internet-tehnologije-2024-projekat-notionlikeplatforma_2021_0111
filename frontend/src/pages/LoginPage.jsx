@@ -2,31 +2,39 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
+import api from "../axios";
 
 function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("");       // username ti ne treba za backend login
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username.trim() !== "" || email.trim() === "" || password.trim() === "") {
-      localStorage.setItem("user", username);
-      navigate("/dashboard");
-    } else {
+  const handleLogin = async () => {
+    if (email.trim() === "" || password.trim() === "") {
       alert("Please fill in all fields!");
+      return;
+    }
+
+    try {
+      // šaljemo POST zahtev na backend
+      const response = await api.post("login", { email, password });
+
+      // čuvamo token i user podatke
+      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("user", JSON.stringify(response.data.data)); // user info
+
+      // navigacija na dashboard ili glavni ekran
+      navigate("/dashboard");
+    } catch (error) {
+      // backend može vratiti 401 ili Validation error
+      const message = error.response?.data?.message || "Login failed!";
+      alert(message);
     }
   };
 
   return (
     <div className="login-page">
       <h1>Welcome to MiniNotion</h1>
-      <InputField
-        label="Username"
-        value={username}
-        onChange={setUsername}
-        placeholder="Enter your name"
-      />
       <InputField
         label="Email"
         value={email}
