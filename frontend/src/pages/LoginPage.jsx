@@ -5,14 +5,16 @@ import Button from "../components/Button";
 
 function LoginPage() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    if (username.trim() !== "") {
+    if (username.trim() !== "" || email.trim() === "" || password.trim() === "") {
       localStorage.setItem("user", username);
       navigate("/dashboard");
     } else {
-      alert("Please enter your name!");
+      alert("Please fill in all fields!");
     }
   };
 
@@ -24,6 +26,19 @@ function LoginPage() {
         value={username}
         onChange={setUsername}
         placeholder="Enter your name"
+      />
+      <InputField
+        label="Email"
+        value={email}
+        onChange={setEmail}
+        placeholder="Enter your email"
+      />
+      <InputField
+        label="Password"
+        value={password}
+        onChange={setPassword}
+        placeholder="Enter your password"
+        type="password"
       />
       <Button label="Login" onClick={handleLogin} />
     </div>
