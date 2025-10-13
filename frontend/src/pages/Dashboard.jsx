@@ -60,6 +60,10 @@ function Dashboard() {
     todo.title.toLowerCase().includes(searchToDo.toLowerCase())
   );
 
+  const totalTodoPages = Math.ceil(filteredTodos.length / itemsPerPage);
+  const startTodoIndex = (todoPage - 1) * itemsPerPage;
+  const currentTodos = filteredTodos.slice(startTodoIndex, startTodoIndex + itemsPerPage);
+
   return (
     <div className="dashboard">
       <h2>Welcome back!</h2>
@@ -127,7 +131,7 @@ function Dashboard() {
         />
         <Button label="Add To-Do List" onClick={addToDo} />
         <div className="todos-container">
-          {filteredTodos.map((todo) => (
+          {currentTodos.map((todo) => (
             <div key={todo.id} className="todo-wrapper">
               <Card
                 title={todo.title}
@@ -137,6 +141,21 @@ function Dashboard() {
               <Button label="Delete" onClick={() => deleteToDo(todo.id)} />
             </div>
           ))}
+        </div>
+        <div style={{ marginTop: "1em" }}>
+          <Button
+            label="Previous"
+            onClick={() => setTodoPage((p) => Math.max(p - 1, 1))}
+            disabled={todoPage === 1}
+          />
+          <span style={{ margin: "0 1em" }}>
+            Page {todoPage} of {totalTodoPages || 1}
+          </span>
+          <Button
+            label="Next"
+            onClick={() => setTodoPage((p) => Math.min(p + 1, totalTodoPages))}
+            disabled={todoPage === totalTodoPages || totalTodoPages === 0}
+          />
         </div>
       </section>
     </div>
