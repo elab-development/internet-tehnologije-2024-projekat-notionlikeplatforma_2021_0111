@@ -16,7 +16,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<PrivateRoute>
         <Dashboard />
-    </PrivateRoute>} />
+        </PrivateRoute>} />
         <Route path="/note/:id" element={<NoteEditor />} />
         <Route path="/todo/:id" element={<ToDoPage />} />
         <Route path="/about" element={<About />} />
