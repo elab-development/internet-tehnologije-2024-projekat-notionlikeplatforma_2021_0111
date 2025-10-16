@@ -16,17 +16,12 @@ class NoteController extends Controller
      */
     public function index(/*Request $request*/)
     {
-        /*$request->validate([
-        'user_id' => 'required|exists:users,id', // traži da pošalješ user_id
-    ]);
+      
+        /*$notes = auth()->user()->notes()->get();
+        return NoteResource::collection($notes);*/
+        $notes = Note::where('user_id', auth()->id())->get();
+return NoteResource::collection($notes);
 
-    $user = User::find($request->user_id);
-
-    if (!$user) {
-        return response()->json(['message' => 'Korisnik nije pronađen'], 404);
-    }*/
-        $notes = auth()->user()->notes()->get();
-        return NoteResource::collection($notes);
     }
 
     /**

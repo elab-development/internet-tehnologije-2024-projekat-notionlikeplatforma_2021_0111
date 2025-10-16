@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import useLocalStorage from "../hooks/useLocalStorage";
+import api from "../axios";
 
 function Dashboard() {
-  const [notes, setNotes] = useLocalStorage("notes", []);
+ const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [todos, setTodos] = useLocalStorage("todos", []);
   const [searchToDo, setSearchToDo] = useState("");
@@ -13,31 +14,68 @@ function Dashboard() {
 
   const [notePage, setNotePage] = useState(1);
   const [todoPage, setTodoPage] = useState(1);
-  const itemsPerPage = 5;
-
-  const addNote = () => {
-    const newNote = {
-      id: Date.now(),
-      title: `New Note ${notes.length + 1}`,
-      content: "Empty note...",
+  const itemsPerPage = 3;
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const response = await api.get("/notes");
+        console.log("Fetched notes:", response.data.data);
+console.log("Fetched notes length:", response.data.data.length);
+        setNotes(response.data.data); // proveri da li je data ili samo response.data
+      } catch (err) {
+        console.error("Failed to fetch notes:", err);
+      }
     };
-    setNotes([...notes, newNote]);
+
+    fetchNotes();
+  }, []);
+  
+
+  const addNote = async () => {
+    try {
+      const response = await api.post("/notes", { title: "New Note", content: "" });
+      setNotes((prev) => [...prev, response.data.data]);
+    } catch (err) {
+      console.error("Failed to add note:", err);
+    }
   };
 
   const openNote = (id) => navigate(`/note/${id}`);
 
-  const deleteNote = (id) => {
-    const updatedNotes = notes.filter((note) => note.id !== id);
-    setNotes(updatedNotes);
+  const deleteNote = async (id) => {
+    try {
+      await api.delete(`/notes/${id}`);
+      setNotes((prev) => prev.filter((note) => note.id !== id));
+    } catch (err) {
+      console.error("Failed to delete note:", err);
+    }
   };
 
-  const filteredNotes = notes.filter((note) =>
+ /* const filteredNotes = notes.filter((note) =>
     note.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  );*/
+  const filteredNotes =
+  searchTerm.trim() === ""
+    ? notes // ako nema pretrage, uzmi sve
+    : notes.filter((note) =>
+        note.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-  const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
+// broj stranica
+const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
+
+// izračunavanje opsega
+const startNoteIndex = (notePage - 1) * itemsPerPage;
+
+// beleške koje se prikazuju na trenutnoj stranici
+const currentNotes = filteredNotes.slice(
+  startNoteIndex,
+  startNoteIndex + itemsPerPage
+);
+
+  /*const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
   const startNoteIndex = (notePage - 1) * itemsPerPage;
-  const currentNotes = filteredNotes.slice(startNoteIndex, startNoteIndex + itemsPerPage);
+  const currentNotes = filteredNotes.slice(startNoteIndex, startNoteIndex + itemsPerPage);*/
 
   const addToDo = () => {
     const newToDo = {
