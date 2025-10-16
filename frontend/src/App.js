@@ -8,7 +8,7 @@ import ToDoPage from "./pages/ToDoPage";
 import About from "./pages/About";
 import './App.css';
 
-function App() {
+/*function App() {
   return (
     <Router>
       <Navbar />
@@ -19,6 +19,46 @@ function App() {
         </PrivateRoute>} />
         <Route path="/note/:id" element={<NoteEditor />} />
         <Route path="/todo/:id" element={<ToDoPage />} />
+        <Route path="/about" element={<About />} />
+      </Routes>
+    </Router>
+  );
+}*/
+function App() {
+  return (
+    <Router>
+      <Navbar />
+      <Routes>
+        {/* Javna ruta */}
+        <Route path="/" element={<LoginPage />} />
+
+        {/* Zaštićene rute */}
+        <Route
+          path="/dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/note/:id"
+          element={
+            <PrivateRoute>
+              <NoteEditor />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/todo/:id"
+          element={
+            <PrivateRoute>
+              <ToDoPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Javna ruta */}
         <Route path="/about" element={<About />} />
       </Routes>
     </Router>

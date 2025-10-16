@@ -9,7 +9,7 @@ function Breadcrumbs({ notes = [], todos = [] }) {
   return (
     <nav style={{ margin: "1em 0" }}>
       <span>
-        <Link to="/">Home</Link>
+        <Link to="/dashboard">Dashboard</Link>
       </span>
       {pathnames.map((name, index) => {
         if (index === pathnames.length - 1 && !isNaN(Number(name))) return null;

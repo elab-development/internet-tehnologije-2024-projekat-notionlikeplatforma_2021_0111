@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+/*import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Quotes() {
@@ -9,7 +9,7 @@ function Quotes() {
     const fetchQuote = async () => {
       try {
         const response = await axios.get(
-          "https://api.allorigins.win/get?url=" + encodeURIComponent("https://zenquotes.io/api/random")
+          /*"https://api.allorigins.win/get?url=" + encodeURIComponent("https://zenquotes.io/api/random")
         );
 
         // allorigins vraća sadržaj u response.data.contents kao string
@@ -20,7 +20,44 @@ function Quotes() {
         setQuote({ text: q.q, author: q.a });
       } catch (err) {
         setError("Failed to fetch quote");
-        console.error(err);
+        console.error("Error details:", err.response || err.message || err);
+      }
+    };
+
+    fetchQuote();
+  }, []);
+
+  if (error) return <p>{error}</p>;
+  if (!quote) return <p>Loading...</p>;
+
+  return (
+    <div className="quote">
+      <p>"{quote.text}"</p>
+      <p>- {quote.author || "Unknown"}</p>
+    </div>
+  );
+}
+
+export default Quotes;*/
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+function Quotes() {
+  const [quote, setQuote] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchQuote = async () => {
+      try {
+        // Direktno pozivanje ZenQuotes API-ja
+        const response = await axios.get("https://zenquotes.io/api/random");
+
+        // response.data je niz sa jednim objektom
+        const q = response.data[0];
+        setQuote({ text: q.q, author: q.a });
+      } catch (err) {
+        setError("Failed to fetch quote");
+        console.error("Error details:", err.response || err.message || err);
       }
     };
 

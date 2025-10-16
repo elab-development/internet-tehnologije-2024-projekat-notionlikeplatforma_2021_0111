@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import Breadcrumbs from "../components/Breadcrumbs";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 function Dashboard() {
@@ -68,7 +67,7 @@ function Dashboard() {
     <div className="dashboard">
       <h2>Welcome back!</h2>
 
-      <Breadcrumbs notes={notes} todos={todos} />
+      
       <section>
         <h3>Your Notes</h3>
         <input

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+/*import { Link } from "react-router-dom";
 
 function Navbar() {
   return (
@@ -6,6 +6,36 @@ function Navbar() {
       <Link to="/dashboard">Dashboard</Link>
       <Link to="/about">About</Link>
       <Link to="/">Logout</Link>
+    </nav>
+  );
+}
+
+export default Navbar;*/
+import { Link, useNavigate } from "react-router-dom";
+
+function Navbar() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  return (
+    <nav className="navbar">
+      {token ? (
+        <>
+          <Link to="/dashboard">Dashboard</Link>
+          <Link to="/about">About</Link>
+          <button onClick={handleLogout}>Logout</button>
+        </>
+      ) : (
+        <>
+          <Link to="/">Login</Link>
+        </>
+      )}
     </nav>
   );
 }
