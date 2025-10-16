@@ -8,7 +8,7 @@ import api from "../axios";
 function Dashboard() {
  const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [todos, setTodos] = useLocalStorage("todos", []);
+  const [todos, setTodos] =  useState([]);
   const [searchToDo, setSearchToDo] = useState("");
   const navigate = useNavigate();
 
@@ -31,14 +31,9 @@ console.log("Fetched notes length:", response.data.data.length);
   }, []);
   
 
-  const addNote = async () => {
-    try {
-      const response = await api.post("/notes", { title: "New Note", content: "" });
-      setNotes((prev) => [...prev, response.data.data]);
-    } catch (err) {
-      console.error("Failed to add note:", err);
-    }
-  };
+ const addNote = () => {
+  navigate("/note/new"); // idemo na NoteEditor za novu belešku
+};
 
   const openNote = (id) => navigate(`/note/${id}`);
 
@@ -76,26 +71,39 @@ const currentNotes = filteredNotes.slice(
   /*const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
   const startNoteIndex = (notePage - 1) * itemsPerPage;
   const currentNotes = filteredNotes.slice(startNoteIndex, startNoteIndex + itemsPerPage);*/
-
-  const addToDo = () => {
-    const newToDo = {
-      id: Date.now(),
-      title: `New To-Do ${todos.length + 1}`,
-      tasks: [],
+useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const response = await api.get("/todolists");
+        setTodos(response.data.data); // proveri da li je data ili samo response.data
+      } catch (err) {
+        console.error("Failed to fetch todos:", err);
+      }
     };
-    setTodos([...todos, newToDo]);
+
+    fetchTodos();
+  }, []);
+  const addToDo = () => {
+    navigate("/todo/new");
   };
 
   const openToDo = (id) => navigate(`/todo/${id}`);
 
-  const deleteToDo = (id) => {
-    const updatedTodos = todos.filter((todo) => todo.id !== id);
-    setTodos(updatedTodos);
+  const deleteToDo = async (id) => {
+    try {
+      await api.delete(`/todolists/${id}`);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (err) {
+      console.error("Failed to delete todolist:", err);
+    }
   };
 
-  const filteredTodos = todos.filter((todo) =>
-    todo.title.toLowerCase().includes(searchToDo.toLowerCase())
-  );
+    const filteredTodos =
+  searchToDo.trim() === ""
+    ? todos // ako nema pretrage, uzmi sve
+    : todos.filter((todo) =>
+        todo.title.toLowerCase().includes(searchToDo.toLowerCase())
+      );
 
   const totalTodoPages = Math.ceil(filteredTodos.length / itemsPerPage);
   const startTodoIndex = (todoPage - 1) * itemsPerPage;
