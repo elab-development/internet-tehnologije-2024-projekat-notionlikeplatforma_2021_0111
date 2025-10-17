@@ -1,151 +1,213 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { useParams, useNavigate , useLocation} from "react-router-dom";
+import api from "../axios";
 import Button from "../components/Button";
-import Breadcrumbs from "../components/Breadcrumbs";
-import useLocalStorage from "../hooks/useLocalStorage";
 
 function ToDoPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [todos, setTodos] = useLocalStorage("todos", []);
-  const [todo, setTodo] = useState(null);
-  const [newTask, setNewTask] = useState("");
-  const [newReminder, setNewReminder] = useState("");
-
+const location = useLocation();
+const title = location.state?.title;
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    details: "",
+    due_date: "",
+  });
+  const [loading, setLoading] = useState(true);
+const [showReminderForm, setShowReminderForm] = useState(false); // da otvara/zatvara modal
+const [reminder, setReminder] = useState({
+  title: "",
+  description: "",
+  remind_at: "",
+});
+const [selectedTaskId, setSelectedTaskId] = useState(null); 
+  // Učitaj taskove sa servera
   useEffect(() => {
-    const current = todos.find((t) => t.id === parseInt(id));
-    if (current) setTodo(current);
-  }, [id, todos]);
-
-  if (!todo) return <p>Loading...</p>;
-
-  const handleTitleChange = (e) => {
-    const updated = { ...todo, title: e.target.value };
-    setTodo(updated);
-    setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-  };
-
-  const addTask = () => {
-    if (newTask.trim() === "") return;
-    const newItem = {
-      id: Date.now(),
-      text: newTask,
-      done: false,
-      reminder: newReminder,
+    const fetchTasks = async () => {
+      try {
+        const response = await api.get(`/todolists/${id}/tasks`);
+        setTasks(response.data.data);
+      } catch (err) {
+        console.error("Greška pri učitavanju taskova:", err);
+      } finally {
+        setLoading(false);
+      }
     };
-    const updatedTasks = [...todo.tasks, newItem];
-    const updated = { ...todo, tasks: updatedTasks };
-    setTodo(updated);
-    setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-    setNewTask("");
-    setNewReminder("");
+
+    fetchTasks();
+  }, [id]);
+
+  if (loading) return <p>Loading tasks...</p>;
+
+  // ✅ Toggle status (pending/done)
+  const toggleStatus = async (taskId, currentStatus) => {
+    const newStatus = currentStatus === "done" ? "pending" : "done";
+    try {
+      await api.put(`/todolists/${id}/tasks/${taskId}`, { status: newStatus });
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId ? { ...t, status: newStatus } : t
+        )
+      );
+    } catch (err) {
+      console.error("Greška pri promeni statusa:", err);
+    }
   };
 
-  const toggleDone = (taskId) => {
-    const updatedTasks = todo.tasks.map((t) =>
-      t.id === taskId ? { ...t, done: !t.done } : t
+  // ✅ Dodavanje novog taska
+ const addTask = async () => {
+  if (!newTask.title.trim()) return;
+  try {
+    const response = await api.post(`/todolists/${id}/tasks`, {
+      title: newTask.title,
+      details: newTask.details,
+      due_date: newTask.due_date,
+    });
+
+    // Novi task se nalazi u response.data.data
+    setTasks([...tasks, response.data.data]);
+    setNewTask({ title: "", details: "", due_date: "" });
+  } catch (err) {
+    console.error("Greška pri dodavanju taska:", err);
+  }
+};
+
+const saveReminder = async () => {
+  try {
+    const response = await api.post("/reminders", {
+      ...reminder,
+      task_id: selectedTaskId, // ovo moraš imati negde u state ili proslediti
+    });
+
+    // ovde možeš dodati reminder u lokalni state taska, npr:
+    setTasks(prev =>
+      prev.map(t =>
+        t.id === selectedTaskId
+          ? { ...t, reminders: [...(t.reminders || []), response.data.reminder] }
+          : t
+      )
     );
-    const updated = { ...todo, tasks: updatedTasks };
-    setTodo(updated);
-    setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-  };
 
-  const setReminder = (taskId, reminder) => {
-    const updatedTasks = todo.tasks.map((t) =>
-      t.id === taskId ? { ...t, reminder } : t
-    );
-    const updated = { ...todo, tasks: updatedTasks };
-    setTodo(updated);
-    setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-  };
-
-  const deleteTask = (taskId) => {
-    const updatedTasks = todo.tasks.filter((t) => t.id !== taskId);
-    const updated = { ...todo, tasks: updatedTasks };
-    setTodo(updated);
-    setTodos(todos.map((t) => (t.id === todo.id ? updated : t)));
-  };
-
-  const deleteList = () => {
-    const updatedTodos = todos.filter((t) => t.id !== todo.id);
-    setTodos(updatedTodos);
-    navigate("/dashboard");
-  };
-
+    // resetuj formu i zatvori modal
+    setReminder({ title: "", description: "", remind_at: "" });
+    setShowReminderForm(false);
+  } catch (err) {
+    console.error("Greška pri dodavanju reminder-a:", err);
+  }
+};
   return (
-    <div className="todo-page" style={{ padding: "1em" }}>
-      <Breadcrumbs todos={todos} />
-      <h2>Edit To-Do List</h2>
-
-      <input
-        type="text"
-        value={todo.title}
-        onChange={handleTitleChange}
-        style={{
-          padding: "0.5em",
-          marginBottom: "1em",
-          borderRadius: "5px",
-          border: "1px solid #ccc",
-          width: "300px",
-        }}
-      />
-
-      <div className="add-task" style={{ marginBottom: "1em" }}>
-        <input
-          value={newTask}
-          onChange={(e) => setNewTask(e.target.value)}
-          placeholder="New task..."
-          style={{ marginRight: "0.5em" }}
-        />
-        <input
-          type="datetime-local"
-          value={newReminder}
-          onChange={(e) => setNewReminder(e.target.value)}
-          style={{ marginRight: "0.5em" }}
-        />
-        <Button label="Add Task" onClick={addTask} />
-      </div>
+    <div style={{ padding: "1em" }}>
+      <h2>{title}</h2>
 
       <ul>
-        {todo.tasks.map((task) => (
-          <li key={task.id} className={task.done ? "done" : ""}>
-            <input
-              type="checkbox"
-              checked={task.done}
-              onChange={() => toggleDone(task.id)}
-              style={{ marginRight: "0.5em" }}
-            />
-            <span
-              style={{
-                textDecoration: task.done ? "line-through" : "none",
-                marginRight: "1em",
-              }}
-            >
-              {task.text}
-            </span>
-            <input
-              type="datetime-local"
-              value={task.reminder}
-              onChange={(e) => setReminder(task.id, e.target.value)}
-            />
-            <Button
-              label="Delete"
-              onClick={() => deleteTask(task.id)}
+  {tasks.map((task) => (
+    <li key={task.id} className={task.status === "done" ? "done" : ""}>
+      <input
+        type="checkbox"
+        checked={task.status === "done"}
+        onChange={() => toggleStatus(task.id, task.status)}
+        style={{ marginRight: "0.5em" }}
+      />
+
+      <span
+        style={{
+          textDecoration: task.status === "done" ? "line-through" : "none",
+          marginRight: "1em",
+        }}
+      >
+        {task.title}
+      </span>
+
+      {/* Prikaz detalja */}
+      {task.details && <small style={{ marginRight: "1em" }}>({task.details})</small>}
+
+      {/* Datum (due_date) */}
+      <input
+        type="datetime-local"
+        value={task.due_date ? task.due_date.slice(0, 16) : ""}
+        readOnly
+      />
+      <Button
+              label="Add Reminder"
+              onClick={() => {
+        setSelectedTaskId(task.id);   // postavlja se koji task otvara modal
+        setShowReminderForm(true);     // otvara modal
+      }}
               style={{ marginLeft: "0.5em" }}
             />
-          </li>
-        ))}
-      </ul>
+    </li>
+    
+  ))}
+   {/* Prazan red za novi task */}
+        <li
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginTop: "1em",
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Task title..."
+            value={newTask.title}
+            onChange={(e) =>
+              setNewTask({ ...newTask, title: e.target.value })
+            }
+            style={{ flex: 1, marginRight: "0.5em" }}
+          />
+          <input
+            type="text"
+            placeholder="Task details..."
+            value={newTask.details}
+            onChange={(e) =>
+              setNewTask({ ...newTask, details: e.target.value })
+            }
+            style={{ flex: 1, marginRight: "0.5em" }}
+          />
+          <input
+            type="datetime-local"
+            value={newTask.due_date}
+            onChange={(e) =>
+              setNewTask({ ...newTask, due_date: e.target.value })
+            }
+            style={{ marginRight: "0.5em" }}
+          />
+          <Button label="Add Task" onClick={addTask} />
+        </li>
+</ul>
+
 
       <div style={{ marginTop: "1em" }}>
         <Button label="Back to Dashboard" onClick={() => navigate("/dashboard")} />
-        <Button
-          label="Delete Entire List"
-          onClick={deleteList}
-          style={{ backgroundColor: "red", marginLeft: "0.5em" }}
-        />
       </div>
+      {showReminderForm && (
+  <div className="modal-overlay" onClick={() => setShowReminderForm(false)}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <h3>Add Reminder</h3>
+      <input
+        value={reminder.title}
+        onChange={(e) => setReminder({...reminder, title: e.target.value})}
+        placeholder="Title"
+      />
+      <input
+        value={reminder.description}
+        onChange={(e) => setReminder({...reminder, description: e.target.value})}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={reminder.remind_at}
+        onChange={(e) => setReminder({...reminder, remind_at: e.target.value})}
+      />
+      <button onClick={saveReminder}>Save</button>
+      <button onClick={() => setShowReminderForm(false)}>Cancel</button>
     </div>
+  </div>
+)}
+
+    </div>
+    
   );
 }
 

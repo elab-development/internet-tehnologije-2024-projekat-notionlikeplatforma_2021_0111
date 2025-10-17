@@ -19,6 +19,7 @@ class TaskResource extends JsonResource
             'title'=>$this->title,
             'details' => $this->details,
             'status'   => $this->status,
+            'due_date'=>$this->due_date,
             //'todo_list_id'=> $this->todo_list_id, // možeš izbaciti ako ne želiš FK
         ];
     }

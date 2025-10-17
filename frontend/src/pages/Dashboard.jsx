@@ -10,10 +10,19 @@ function Dashboard() {
   const [searchTerm, setSearchTerm] = useState("");
   const [todos, setTodos] =  useState([]);
   const [searchToDo, setSearchToDo] = useState("");
+  const [reminders, setReminders] =  useState([]);
+  const [searchReminders, setSearchReminders] = useState("");
   const navigate = useNavigate();
 
   const [notePage, setNotePage] = useState(1);
   const [todoPage, setTodoPage] = useState(1);
+  const [reminderPage, setReminderPage] = useState(1);
+  const [showReminderForm, setShowReminderForm] = useState(false); // da otvara/zatvara modal
+const [reminder, setReminder] = useState({
+  title: "",
+  description: "",
+  remind_at: "",
+});
   const itemsPerPage = 3;
   useEffect(() => {
     const fetchNotes = async () => {
@@ -46,9 +55,6 @@ console.log("Fetched notes length:", response.data.data.length);
     }
   };
 
- /* const filteredNotes = notes.filter((note) =>
-    note.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );*/
   const filteredNotes =
   searchTerm.trim() === ""
     ? notes // ako nema pretrage, uzmi sve
@@ -68,9 +74,6 @@ const currentNotes = filteredNotes.slice(
   startNoteIndex + itemsPerPage
 );
 
-  /*const totalNotePages = Math.ceil(filteredNotes.length / itemsPerPage);
-  const startNoteIndex = (notePage - 1) * itemsPerPage;
-  const currentNotes = filteredNotes.slice(startNoteIndex, startNoteIndex + itemsPerPage);*/
 useEffect(() => {
     const fetchTodos = async () => {
       try {
@@ -87,7 +90,7 @@ useEffect(() => {
     navigate("/todo/new");
   };
 
-  const openToDo = (id) => navigate(`/todo/${id}`);
+  const openToDo = (todo) => navigate(`/todo/${todo.id}`, { state: { title: todo.title } });
 
   const deleteToDo = async (id) => {
     try {
@@ -104,11 +107,52 @@ useEffect(() => {
     : todos.filter((todo) =>
         todo.title.toLowerCase().includes(searchToDo.toLowerCase())
       );
+      useEffect(() => {
+    const fetchReminders = async () => {
+      try {
+        const response = await api.get("/reminders");
+        setReminders(response.data.data); // proveri da li je data ili samo response.data
+      } catch (err) {
+        console.error("Failed to fetch reminders:", err);
+      }
+    };
 
+    fetchReminders();
+  }, []);
+ 
+      const filteredReminders =
+  searchReminders.trim() === ""
+    ? reminders // ako nema pretrage, uzmi sve
+    : reminders.filter((reminder) =>
+        reminder.title.toLowerCase().includes(searchReminders.toLowerCase())
+      );
+const deleteReminder = async (id) => {
+    try {
+      await api.delete(`/reminders/${id}`);
+      setReminders((prev) => prev.filter((reminder) => reminder.id !== id));
+    } catch (err) {
+      console.error("Failed to delete reminders:", err);
+    }
+  };
+  const saveReminder = async () => {
+  try {
+    await api.post("/reminders", {
+      ...reminder,
+    });
+    setReminder({ title: "", description: "", remind_at: "" });
+    setShowReminderForm(false);
+setReminders((prev) => [...prev, reminder]);
+
+  } catch (err) {
+    console.error("Greška pri dodavanju reminder-a:", err);
+  }
+};
   const totalTodoPages = Math.ceil(filteredTodos.length / itemsPerPage);
   const startTodoIndex = (todoPage - 1) * itemsPerPage;
   const currentTodos = filteredTodos.slice(startTodoIndex, startTodoIndex + itemsPerPage);
-
+ const totalReminders = Math.ceil(filteredReminders.length / itemsPerPage);
+  const startReminderIndex = (reminderPage - 1) * itemsPerPage;
+  const currentReminders = filteredReminders.slice(startReminderIndex, startReminderIndex + itemsPerPage);
   return (
     <div className="dashboard">
       <h2>Welcome back!</h2>
@@ -181,7 +225,7 @@ useEffect(() => {
               <Card
                 title={todo.title}
                 description={`${todo.tasks.length} tasks`}
-                onClick={() => openToDo(todo.id)}
+                onClick={() => openToDo(todo)}
               />
               <Button label="Delete" onClick={() => deleteToDo(todo.id)} />
             </div>
@@ -203,6 +247,76 @@ useEffect(() => {
           />
         </div>
       </section>
+      <section>
+        <h3>Your Reminders</h3>
+        <input
+          type="text"
+          placeholder="Search Reminders..."
+          value={searchReminders}
+          onChange={(e) => setSearchReminders(e.target.value)}
+          style={{
+            padding: "0.5em",
+            marginBottom: "1em",
+            width: "250px",
+            borderRadius: "5px",
+            border: "1px solid #ccc",
+          }}
+        />
+        <Button label="Add Reminder" onClick={() => {
+        setShowReminderForm(true);     // otvara modal
+      }} />
+        <div className="todos-container">
+          {currentReminders.map((reminder) => (
+            <div key={reminder.id} className="todo-wrapper">
+              <Card
+                title={reminder.title}
+                description={reminder.remind_at}
+                //onClick={() => openToDo(todo)}
+              />
+              <Button label="Delete" onClick={() => deleteReminder(reminder.id)} />
+            </div>
+          ))}
+        </div>
+        <div style={{ marginTop: "1em" }}>
+          <Button
+            label="Previous"
+            onClick={() => setReminderPage((p) => Math.max(p - 1, 1))}
+            disabled={reminderPage === 1}
+          />
+          <span style={{ margin: "0 1em" }}>
+            Page {reminderPage} of {totalReminders || 1}
+          </span>
+          <Button
+            label="Next"
+            onClick={() => setReminderPage((p) => Math.min(p + 1, totalReminders))}
+            disabled={reminderPage === totalReminders || totalReminders === 0}
+          />
+        </div>
+      </section>
+       {showReminderForm && (
+  <div className="modal-overlay" onClick={() => setShowReminderForm(false)}>
+    <div className="modal" onClick={(e) => e.stopPropagation()}>
+      <h3>Add Reminder</h3>
+      <input
+        value={reminder.title}
+        onChange={(e) => setReminder({...reminder, title: e.target.value})}
+        placeholder="Title"
+      />
+      <input
+        value={reminder.description}
+        onChange={(e) => setReminder({...reminder, description: e.target.value})}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={reminder.remind_at}
+        onChange={(e) => setReminder({...reminder, remind_at: e.target.value})}
+      />
+      <button onClick={saveReminder}>Save</button>
+      <button onClick={() => setShowReminderForm(false)}>Cancel</button>
+    </div>
+  </div>
+)}
     </div>
   );
 }
