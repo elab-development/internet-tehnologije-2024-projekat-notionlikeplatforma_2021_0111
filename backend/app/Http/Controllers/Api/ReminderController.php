@@ -75,8 +75,8 @@ public function show(Request $request, $id)
         $reminder->update($validated);
         return (new ReminderResource($reminder))
             ->additional(['message' => 'Reminder uspešno ažuriran'])
-            ->response()
-            ->setStatusCode(201);
+            ->response();
+            //->setStatusCode(201);
    }
 
     // Brisanje remindera

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import useLocalStorage from "../hooks/useLocalStorage";
+//import useLocalStorage from "../hooks/useLocalStorage";
 import api from "../axios";
 
 function Dashboard() {
@@ -23,6 +23,8 @@ const [reminder, setReminder] = useState({
   description: "",
   remind_at: "",
 });
+const [editingReminder, setEditingReminder] = useState(null); // ako nije null, znači da uređujemo
+
   const itemsPerPage = 3;
   useEffect(() => {
     const fetchNotes = async () => {
@@ -136,15 +138,26 @@ const deleteReminder = async (id) => {
   };
   const saveReminder = async () => {
   try {
-    await api.post("/reminders", {
-      ...reminder,
-    });
-    setReminder({ title: "", description: "", remind_at: "" });
-    setShowReminderForm(false);
-setReminders((prev) => [...prev, reminder]);
+    if (editingReminder) {
+      const response = await api.put(`/reminders/${editingReminder.id}`, {
+        ...reminder,
+      });
 
+      setReminders((prev) =>
+        prev.map((r) =>
+          r.id === editingReminder.id ? response.data.data : r
+        )
+      );
+    } else {
+      const response = await api.post("/reminders", { ...reminder });
+      setReminders((prev) => [...prev, response.data.data]);
+    }
+
+    setReminder({ title: "", description: "", remind_at: "" });
+    setEditingReminder(null);
+    setShowReminderForm(false);
   } catch (err) {
-    console.error("Greška pri dodavanju reminder-a:", err);
+    console.error("Greška pri čuvanju reminder-a:", err);
   }
 };
   const totalTodoPages = Math.ceil(filteredTodos.length / itemsPerPage);
@@ -263,6 +276,8 @@ setReminders((prev) => [...prev, reminder]);
           }}
         />
         <Button label="Add Reminder" onClick={() => {
+          setReminder({ title: "", description: "", remind_at: "" });
+    setEditingReminder(null);
         setShowReminderForm(true);     // otvara modal
       }} />
         <div className="todos-container">
@@ -271,7 +286,15 @@ setReminders((prev) => [...prev, reminder]);
               <Card
                 title={reminder.title}
                 description={reminder.remind_at}
-                //onClick={() => openToDo(todo)}
+                onClick={() => {
+                 setReminder({
+      title: reminder.title,
+      description: reminder.description,
+      remind_at: reminder.remind_at.slice(0, 16), // datetime-local format
+    });
+    setEditingReminder(reminder); // postavi da uređujemo
+    setShowReminderForm(true);
+  }}
               />
               <Button label="Delete" onClick={() => deleteReminder(reminder.id)} />
             </div>
@@ -296,7 +319,7 @@ setReminders((prev) => [...prev, reminder]);
        {showReminderForm && (
   <div className="modal-overlay" onClick={() => setShowReminderForm(false)}>
     <div className="modal" onClick={(e) => e.stopPropagation()}>
-      <h3>Add Reminder</h3>
+     <h3>{editingReminder ? "Edit Reminder" : "Add Reminder"}</h3>
       <input
         value={reminder.title}
         onChange={(e) => setReminder({...reminder, title: e.target.value})}
@@ -312,7 +335,7 @@ setReminders((prev) => [...prev, reminder]);
         value={reminder.remind_at}
         onChange={(e) => setReminder({...reminder, remind_at: e.target.value})}
       />
-      <button onClick={saveReminder}>Save</button>
+      <button onClick={saveReminder}>{editingReminder ? "Update" : "Save"}</button>
       <button onClick={() => setShowReminderForm(false)}>Cancel</button>
     </div>
   </div>
