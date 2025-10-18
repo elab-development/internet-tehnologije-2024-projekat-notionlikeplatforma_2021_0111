@@ -43,7 +43,7 @@ function NoteEditor() {
 
   return (
     <div className="note-editor">
-      <Breadcrumbs />
+      <Breadcrumbs note={note}  />
       <input
         placeholder="Title"
         value={note.title}

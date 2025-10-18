@@ -9,20 +9,6 @@ import About from "./pages/About";
 import User from "./pages/User";
 import './App.css';
 
-/*function App() {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/note/:id" element={<NoteEditor />} />
-        <Route path="/todo/:id" element={<ToDoPage />} />
-        <Route path="/about" element={<About />} />
-      </Routes>
-    </Router>
-  );
-}*/
 function App() {
   return (
     <Router>
@@ -57,7 +43,7 @@ function App() {
           }
         />
         <Route
-          path="/user"
+          path="/users"
           element={
             <PrivateRoute requireAdmin={true}>
               <User />

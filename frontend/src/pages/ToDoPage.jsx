@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate , useLocation} from "react-router-dom";
 import api from "../axios";
 import Button from "../components/Button";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 function ToDoPage() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const [todo, setTodo] = useState({
     title: title,
     description: "",
   });
+  const [statusFilter, setStatusFilter] = useState("all"); 
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({
     title: "",
@@ -25,6 +27,11 @@ const [reminder, setReminder] = useState({
   description: "",
   remind_at: "",
 });
+const filteredTasks = tasks.filter((task) => {
+  if (statusFilter === "all") return true;
+  return task.status === statusFilter;
+});
+
 const [selectedTaskId, setSelectedTaskId] = useState(null); 
 useEffect(() => {
     const fetchToDo = async () => {
@@ -127,6 +134,7 @@ const saveReminder = async () => {
 };
   return (
     <div style={{ padding: "1em" }}>
+      <Breadcrumbs todo={todo}/>
       {/* ✅ Ako je nova lista — prikaz forme */}
       {id === "new" ? (
         <>
@@ -151,10 +159,22 @@ const saveReminder = async () => {
           {/* ✅ Postojeća lista */}
           <h2>{todo.title}</h2>
           <p style={{ color: "#555" }}>{todo.description}</p>
+          <div style={{ margin: "1em 0" }}>
+  <label htmlFor="statusFilter">Filter by status: </label>
+  <select
+    id="statusFilter"
+    value={statusFilter}
+    onChange={(e) => setStatusFilter(e.target.value)}
+  >
+    <option value="all">All</option>
+    <option value="done">Done</option>
+    <option value="pending">Pending</option>
+  </select>
+</div>
 
           {/* Lista taskova */}
           <ul>
-            {tasks.map((task) => (
+            {filteredTasks.map((task) => (
               <li key={task.id} className={task.status === "done" ? "done" : ""}>
                 <input
                   type="checkbox"

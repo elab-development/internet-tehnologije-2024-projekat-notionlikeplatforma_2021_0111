@@ -31,7 +31,7 @@ function Navbar() {
         <>
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/about">About</Link>
-          {user?.role === "admin" && <Link to="/user">Users</Link>}
+          {user?.role === "admin" && <Link to="/users">Users</Link>}
           <button onClick={handleLogout}>Logout</button>
         </>
       ) : (

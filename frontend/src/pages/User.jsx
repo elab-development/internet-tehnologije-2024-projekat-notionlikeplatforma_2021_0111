@@ -2,24 +2,24 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import api from "../axios";
 import Button from "../components/Button";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 function User() {
   const [users, setUsers] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // 1️⃣ Proveri da li je ulogovani korisnik admin
   useEffect(() => {
     const fetchMe = async () => {
       try {
-        const response = await api.get("/user"); // /user rutu već imaš u backendu
+        const response = await api.get("/user"); 
         const currentUser = response.data.data;
         if (currentUser.role === "admin") {
           setIsAdmin(true);
           fetchUsers();
         }
       } catch (error) {
-        console.error("Nije moguće proveriti korisnika:", error);
+        console.error("Error:", error);
       } finally {
         setLoading(false);
       }
@@ -30,38 +30,35 @@ function User() {
         const res = await api.get("/users");
         setUsers(res.data.data);
       } catch (err) {
-        console.error("Greška pri učitavanju korisnika:", err);
+        console.error("Error while loading users:", err);
       }
     };
 
     fetchMe();
   }, []);
 
-  // 2️⃣ Brisanje korisnika
   const deleteUser = async (id) => {
-    if (!window.confirm("Da li si siguran da želiš da obrišeš ovog korisnika?")) return;
+    if (!window.confirm("Do you want to delete this user?")) return;
 
     try {
       await api.delete(`/users/${id}`);
       setUsers((prev) => prev.filter((user) => user.id !== id));
-      alert("Korisnik uspešno obrisan!");
+      alert("User successfully deleted.");
     } catch (error) {
-      console.error("Greška pri brisanju korisnika:", error);
-      alert("Došlo je do greške.");
+      console.error("Error while deleting.", error);
+      alert("Error.");
     }
   };
-// 3️⃣ Loading stanje
-  if (loading) return <p>Učitavanje...</p>;
+ if (loading) return <p>Loading...</p>;
 
-  // 🔐 4️⃣ Ako korisnik nije admin — preusmeri ga
   if (!isAdmin) return <Navigate to="/dashboard" />;
-  
-  // 4️⃣ Ako jeste admin
+ 
   return (
     <div className="user-page">
-      <h2>Lista korisnika</h2>
+      <Breadcrumbs />
+      <h2>Users</h2>
       {users.length === 0 ? (
-        <p>Nema registrovanih korisnika.</p>
+        <p>...</p>
       ) : (
         <ul>
           {users.map((user) => (
@@ -78,9 +75,9 @@ function User() {
                 <strong>{user.name}</strong> ({user.email})
               </div>
               <Button
-                label="Obriši"
+                label="Delete"
                 onClick={() => deleteUser(user.id)}
-                disabled={user.is_admin} // opciono: spreči brisanje drugih admina
+                disabled={user.is_admin} 
               />
             </li>
           ))}
