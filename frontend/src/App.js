@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import NoteEditor from "./pages/NoteEditor";
 import ToDoPage from "./pages/ToDoPage";
 import About from "./pages/About";
+import User from "./pages/User";
 import './App.css';
 
 /*function App() {
@@ -14,9 +15,7 @@ import './App.css';
       <Navbar />
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<PrivateRoute>
-        <Dashboard />
-        </PrivateRoute>} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/note/:id" element={<NoteEditor />} />
         <Route path="/todo/:id" element={<ToDoPage />} />
         <Route path="/about" element={<About />} />
@@ -28,12 +27,12 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <Routes>
+      <Routes>*/
         {/* Javna ruta */}
-        <Route path="/" element={<LoginPage />} />
+        //<Route path="/" element={<LoginPage />} />
 
         {/* Zaštićene rute */}
-        <Route
+        /*<Route
           path="/dashboard"
           element={
             <PrivateRoute>
@@ -57,9 +56,17 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/user"
+          element={
+            <PrivateRoute requireAdmin={true}>
+              <User />
+            </PrivateRoute>
+          }
+        />
 
         {/* Javna ruta */}
-        <Route path="/about" element={<About />} />
+        /*<Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );
