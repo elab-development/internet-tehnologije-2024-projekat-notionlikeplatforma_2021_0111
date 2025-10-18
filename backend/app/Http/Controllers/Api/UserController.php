@@ -80,7 +80,10 @@ public function me(Request $request)
 }
 public function index()
 {
-    $users = User::all();
+    $currentUserId = auth()->id(); // uzmi id trenutno ulogovanog korisnika
+
+    $users = User::where('id', '!=', $currentUserId)->get(); // svi osim sebe
+
 
     return response()->json([
         'message' => 'Uspesno ucitani svi korisnici',
