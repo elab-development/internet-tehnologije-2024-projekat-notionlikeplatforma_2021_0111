@@ -182,3 +182,14 @@ h1, h2, h3 {
   max-width: 400px;
   width: 100%;
 }
+.holidays-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 1em;
+}
+
+.holidays-container .card {
+  width: 200px;
+  background-color: #f9f9f9;
+}

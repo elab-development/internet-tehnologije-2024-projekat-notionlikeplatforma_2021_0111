@@ -6,6 +6,7 @@ import Card from "../components/Card";
 import api from "../axios";
 
 function Dashboard() {
+  const [holidays, setHolidays] = useState([]);
  const [notes, setNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [todos, setTodos] =  useState([]);
@@ -26,6 +27,19 @@ const [reminder, setReminder] = useState({
 const [editingReminder, setEditingReminder] = useState(null); // ako nije null, znači da uređujemo
 
   const itemsPerPage = 3;
+  useEffect(() => {
+  const fetchHolidays = async () => {
+    try {
+      const response = await fetch("https://date.nager.at/api/v3/PublicHolidays/2025/RS");
+      const data = await response.json();
+      setHolidays(data.slice(0, 5)); // uzmi samo prvih 5 praznika
+    } catch (error) {
+      console.error("Greška pri učitavanju praznika:", error);
+    }
+  };
+  fetchHolidays();
+}, []);
+
   useEffect(() => {
     const fetchNotes = async () => {
       try {
@@ -169,7 +183,22 @@ const deleteReminder = async (id) => {
   return (
     <div className="dashboard">
       <h2>Welcome back!</h2>
-
+      <section>
+  <h3>Upcoming Holidays in Serbia</h3>
+  {holidays.length === 0 ? (
+    <p>Loading holidays...</p>
+  ) : (
+    <div className="holidays-container">
+      {holidays.map((holiday) => (
+        <Card
+          key={holiday.date}
+          title={holiday.localName}
+          description={`Date: ${holiday.date}`}
+        />
+      ))}
+    </div>
+  )}
+</section>
       
       <section>
         <h3>Your Notes</h3>
