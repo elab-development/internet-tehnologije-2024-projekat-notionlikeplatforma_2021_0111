@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import Card from "../components/Card";
 //import useLocalStorage from "../hooks/useLocalStorage";
 import api from "../axios";
-
+import DashboardStats from "../components/DashboardStats";
 function Dashboard() {
   const [holidays, setHolidays] = useState([]);
  const [notes, setNotes] = useState([]);
@@ -369,6 +369,7 @@ const deleteReminder = async (id) => {
     </div>
   </div>
 )}
+ <DashboardStats notes={notes} todos={todos} />
     </div>
   );
 }

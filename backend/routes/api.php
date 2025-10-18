@@ -20,13 +20,15 @@ use App\Http\Controllers\Api\ReminderController;
 */
 Route::post('/register', [UserController::class, 'register']);  // registracija
 Route::post('/login', [UserController::class, 'login'])->name('login');        // login
-
+Route::put('/user/reset-password', [UserController::class, 'resetPassword']);
 //rute za usera
 
 //middleware gleda da li je korisnik ulogovan
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [UserController::class, 'me']);
     Route::post('/logout', [UserController::class, 'logout']);
+
+
     Route::put('/user', [UserController::class, 'update']);   // Update sopstveni profil
     Route::delete('/user', [UserController::class, 'delete']); // Delete sopstveni nalog
     Route::get('/notes/search', [NoteController::class, 'search']);

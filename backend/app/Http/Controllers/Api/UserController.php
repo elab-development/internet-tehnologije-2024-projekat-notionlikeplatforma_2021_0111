@@ -148,4 +148,19 @@ public function update(Request $request)
         'message' => 'Korisnik je uspešno obrisan.'
     ]);
 }
+public function resetPassword(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email|exists:users,email',
+        'password' => 'required|string|min:6',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+    $user->password = Hash::make($request->password);
+    $user->save();
+
+    return response()->json(['message' => 'Password successfully updated.']);
+}
+
+
 }
