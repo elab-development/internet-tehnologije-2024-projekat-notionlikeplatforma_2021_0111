@@ -7,6 +7,7 @@ import NoteEditor from "./pages/NoteEditor";
 import ToDoPage from "./pages/ToDoPage";
 import About from "./pages/About";
 import User from "./pages/User";
+import RegisterPage from "./pages/RegisterPage";
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
       <Routes>*/
         {/* Javna ruta */}
         //<Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Zaštićene rute */}
         /*<Route

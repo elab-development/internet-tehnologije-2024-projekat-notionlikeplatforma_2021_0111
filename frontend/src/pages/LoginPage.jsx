@@ -51,6 +51,9 @@ function LoginPage() {
         type="password"
       />
       <Button label="Login" onClick={handleLogin} />
+      <p>Not registered yet</p>
+      <Button label="Register" onClick={() => navigate("/register")}
+/>
     </div>
   );
 }
