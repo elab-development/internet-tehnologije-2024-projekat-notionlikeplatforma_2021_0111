@@ -182,7 +182,7 @@ const deleteReminder = async (id) => {
   const currentReminders = filteredReminders.slice(startReminderIndex, startReminderIndex + itemsPerPage);
   return (
     <div className="dashboard">
-      <h2>Welcome back!</h2>
+      <h2 style={{WebkitTextStroke: "1px #2a5078", color: "white"}}>Welcome back!</h2>
       <section>
   <h3>Upcoming Holidays in Serbia</h3>
   {holidays.length === 0 ? (
@@ -369,8 +369,8 @@ const deleteReminder = async (id) => {
     </div>
   </div>
 )}
- <DashboardStats notes={notes} todos={todos} />
-    </div>
+ <DashboardStats notes={notes} todos={todos}/>
+  </div>
   );
 }
 

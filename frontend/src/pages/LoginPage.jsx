@@ -6,7 +6,7 @@ import api from "../axios";
 import Quotes from "../components/Quotes";
 import ChangePasswordModal from "../components/ChangePasswordModal";
 function LoginPage() {
-  const [email, setEmail] = useState("");       // username ti ne treba za backend login
+  const [email, setEmail] = useState("");       
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const [showForgottenPassword, setShowForgottenPassword] = useState(false);
@@ -37,8 +37,21 @@ function LoginPage() {
   
   return (
     <div className="login-page">
-      <h1>Welcome to MiniNotion</h1>
-      <Quotes />
+      <section style={{
+        backgroundImage: "url('/images/notion.jpg')",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",       
+        backgroundPosition: "bottom",
+        color:"#ffffffff",
+        border: "2px solid black",
+        textAlign: "center",
+        WebkitTextStroke: "1px black",
+        height: "150px",
+        width: "800px"
+      }}>
+        <h1>Welcome to MiniNotion</h1>
+       <Quotes />
+      </section>
       <InputField
         label="Email"
         value={email}

@@ -2,7 +2,7 @@
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
+  background-color: #f5f4f4;
   color: #333;
 }
 
@@ -26,12 +26,12 @@ h1, h2, h3 {
 }
 
 .navbar a:hover {
-  color: #007bff;
+  color: #537ba3;
 }
 
 /* Buttons */
 .btn {
-  background-color: #007bff;
+  background-color: #2a5078;
   color: #fff;
   border: none;
   padding: 0.5em 1em;
@@ -42,7 +42,7 @@ h1, h2, h3 {
 }
 
 .btn:hover {
-  background-color: #0056b3;
+  background-color: #e97c5a;
 }
 
 /* Login page */
@@ -167,7 +167,8 @@ h1, h2, h3 {
 
 /* About page */
 .about-page {
-  padding: 2em;
+  color: white; 
+  padding: 2rem;
 }
 .modal-overlay {
   position: fixed;
@@ -198,5 +199,5 @@ h1, h2, h3 {
 
 .holidays-container .card {
   width: 200px;
-  background-color: #f9f9f9;
+  background-color: #ffffff;
 }

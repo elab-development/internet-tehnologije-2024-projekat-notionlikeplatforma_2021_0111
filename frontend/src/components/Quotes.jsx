@@ -11,11 +11,8 @@ function Quotes() {
         const response = await api.get(
           "https://api.allorigins.win/get?url=" + encodeURIComponent("https://zenquotes.io/api/random")
         );
-
-        // allorigins vraća sadržaj u response.data.contents kao string
         const data = JSON.parse(response.data.contents);
 
-        // ZenQuotes vraća niz sa jednim objektom
         const q = data[0];
         setQuote({ text: q.q, author: q.a });
       } catch (err) {
@@ -23,7 +20,6 @@ function Quotes() {
         console.error("Error details:", err.response || err.message || err);
       }
     };
-
     fetchQuote();
   }, []);
 
@@ -39,4 +35,3 @@ function Quotes() {
 }
 
 export default Quotes;
-

@@ -56,7 +56,7 @@ function User() {
   return (
     <div className="user-page">
       <Breadcrumbs />
-      <h2>Users</h2>
+      <h2 style={{ textAlign: "center" }}>Users:</h2>
       {users.length === 0 ? (
         <p>...</p>
       ) : (

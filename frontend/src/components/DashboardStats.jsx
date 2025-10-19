@@ -51,7 +51,14 @@ const data = {
     },
   };
   return (
-    <section style={{ margin: "1em 0", padding: "1em",  borderRadius: "5px" }}>
+    <section style={{ margin: "1em 0", padding: "1em",  borderRadius: "5px" ,
+        backgroundImage: "url('/images/ikonica.jpg')",
+        backgroundPosition: "right",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "500px",
+        backgroundColor: "white"
+      }}
+    >
       <h3>Dashboard Stats</h3>
       <section style={{ margin: "1em 0", padding: "1em", border: "1px solid #ccc", borderRadius: "5px" , width:400, height:400}}>
       <Bar data={data} options={options} width={380} height={380}/>
