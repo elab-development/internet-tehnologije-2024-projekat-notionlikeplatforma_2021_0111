@@ -20,9 +20,10 @@ class ReminderController extends Controller
         ->reminders()
         ->with('task')
         ->get();
+       return ReminderResource::collection($reminders);
 
-    return ReminderResource::collection($reminders);
-}
+    }
+
 
 
     // Kreiranje novog remindera

@@ -61,7 +61,6 @@ useEffect(() => {
 
   if (loading) return <p>Loading...</p>;
 
-  // ✅ Dodaj novu To-Do listu
   const addToDoList = async () => {
     if (!todo.title.trim()) return alert("Naslov je obavezan.");
     try {
@@ -76,7 +75,7 @@ useEffect(() => {
 
   if (loading) return <p>Loading tasks...</p>;
 
-  // ✅ Toggle status (pending/done)
+  //Toggle status (pending/done)
   const toggleStatus = async (taskId, currentStatus) => {
     const newStatus = currentStatus === "done" ? "pending" : "done";
     try {
@@ -91,7 +90,7 @@ useEffect(() => {
     }
   };
 
-  // ✅ Dodavanje novog taska
+  //Dodavanje novog taska
  const addTask = async () => {
   if (!newTask.title.trim()) return;
   try {
@@ -101,7 +100,6 @@ useEffect(() => {
       due_date: newTask.due_date,
     });
 
-    // Novi task se nalazi u response.data.data
     setTasks([...tasks, response.data.data]);
     setNewTask({ title: "", details: "", due_date: "" });
   } catch (err) {
@@ -113,10 +111,10 @@ const saveReminder = async () => {
   try {
     const response = await api.post("/reminders", {
       ...reminder,
-      task_id: selectedTaskId, // ovo moraš imati negde u state ili proslediti
+      task_id: selectedTaskId,
     });
 
-    // ovde možeš dodati reminder u lokalni state taska, npr:
+   
     setTasks(prev =>
       prev.map(t =>
         t.id === selectedTaskId
@@ -125,7 +123,7 @@ const saveReminder = async () => {
       )
     );
 
-    // resetuj formu i zatvori modal
+  
     setReminder({ title: "", description: "", remind_at: "" });
     setShowReminderForm(false);
   } catch (err) {
@@ -135,7 +133,6 @@ const saveReminder = async () => {
   return (
     <div style={{ padding: "1em" }}>
       <Breadcrumbs todo={todo}/>
-      {/* ✅ Ako je nova lista — prikaz forme */}
       {id === "new" ? (
         <>
           <h2>Create New To-Do List</h2>
@@ -156,7 +153,6 @@ const saveReminder = async () => {
         </>
       ) : (
         <>
-          {/* ✅ Postojeća lista */}
           <h2>{todo.title}</h2>
           <p style={{ color: "#555" }}>{todo.description}</p>
           <div style={{ margin: "1em 0" }}>
@@ -172,7 +168,6 @@ const saveReminder = async () => {
   </select>
 </div>
 
-          {/* Lista taskova */}
           <ul>
             {filteredTasks.map((task) => (
               <li key={task.id} className={task.status === "done" ? "done" : ""}>
@@ -210,7 +205,6 @@ const saveReminder = async () => {
               </li>
             ))}
 
-            {/* Novi task */}
             <li style={{ display: "flex", alignItems: "center", marginTop: "1em" }}>
               <input
                 type="text"

@@ -50,7 +50,7 @@ function LoginPage() {
         width: "800px"
       }}>
         <h1>Welcome to MiniNotion</h1>
-       <Quotes />
+        <p style={{WebkitTextStroke: "1px white",}}><Quotes /></p>
       </section>
       <InputField
         label="Email"

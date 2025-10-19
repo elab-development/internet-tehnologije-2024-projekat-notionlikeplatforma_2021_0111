@@ -16,11 +16,9 @@ class NoteController extends Controller
      */
     public function index(/*Request $request*/)
     {
-      
-        /*$notes = auth()->user()->notes()->get();
-        return NoteResource::collection($notes);*/
-        $notes = Note::where('user_id', auth()->id())->get();
-return NoteResource::collection($notes);
+      $notes = Note::where('user_id', auth()->id())->get();
+
+      return NoteResource::collection($notes);
 
     }
 
@@ -55,37 +53,9 @@ return NoteResource::collection($notes);
             ->additional(['message' => 'Beleška uspešno kreirana'])
             ->response()
             ->setStatusCode(201);
-       /* return response()->json([
-            'message' => 'Beleška uspešno kreirana',
-            'note' => $note
-        ], 201);*/
+       
     }
-      /*  public function store(Request $request)
-{
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'content' => 'nullable|string',
-        'user_id' => 'required|exists:users,id', // traži da pošalješ user_id
-    ]);
-
-    $user = User::find($request->user_id);
-
-    if (!$user) {
-        return response()->json(['message' => 'Korisnik nije pronađen'], 404);
-    }
-
-    $note = $user->notes()->create([
-        'title' => $request->title,
-        'content' => $request->content,
-    ]);
-
-    return response()->json([
-        'message' => 'Beleška uspešno kreirana',
-        'note' => $note
-    ], 201);
-}*/
-
-
+      
     /**
      * Display the specified resource.
      *
@@ -139,11 +109,7 @@ return NoteResource::collection($notes);
      */
     public function destroy(/*Request $request,*/$id)
     {
-       /* $request->validate([
-        'user_id' => 'required|exists:users,id', // traži da pošalješ user_id
-    ]);
-
-    $user = User::find($request->user_id);*/
+       
         $note = auth()->user()->notes()->findOrFail($id);
         $note->delete();
 
@@ -152,21 +118,7 @@ return NoteResource::collection($notes);
         ]);
     }
 
-  /*  public function search(Request $request)
-{
-    $query = $request->input('q');
-
-    if (!$query) {
-        return response()->json(['message' => 'Query parametar q je obavezan'], 400);
-    }
-
-    $notes = auth()->user()->notes()
-        ->where('title', 'LIKE', "%{$query}%")
-        ->get();
-
-    return response()->json($notes);
-}*/
-
+ 
 public function search(Request $request)
 {
     $query = $request->input('q');
@@ -190,24 +142,6 @@ public function search(Request $request)
     return NoteResource::collection($notes);
 }
 
-
-
-
-/*
-    $userId = $request->input('user_id'); // filter po korisniku
-    $date = $request->input('date'); // filter po datumu
-
-    $notes = Note::query();
-
-    if ($userId) {
-        $notes->where('user_id', $userId);
-    }
-    if ($date) {
-        $notes->whereDate('created_at', $date);
-    }
-
-    /*return response()->json($notes->get());*/
-    //return NoteResource::collection($notes);*/public function filter(Request $request)
 
 public function filter(Request $request)
 {
@@ -238,6 +172,11 @@ public function paginate(Request $request)
     $notes = $user->notes()->paginate($perPage);
 
     return NoteResource::collection($notes);
+}
+public function stats()
+{
+    $count = auth()->user()->notes()->count();
+    return response()->json(['notesCount' => $count]);
 }
 
 }

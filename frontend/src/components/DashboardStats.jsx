@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
+import api from "../axios";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -8,38 +9,60 @@ import {
   Title,
   Tooltip,
   Legend,
-} from "chart.js";
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-function DashboardStats({ notes, todos }) {
-  // Broj beleški
-  const notesCount = notes.length;
+} from 'chart.js';
 
-  // Broj to-do lista
-  const todosCount = todos.length;
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+function DashboardStats() {
+  const [stats, setStats] = useState({
+    notesCount: 0,
+    todosCount: 0,
+    done: 0,
+    pending: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
-  // Broj taskova po statusu (done/pending)
-  const taskStats = useMemo(() => {
-    let done = 0;
-    let pending = 0;
-    todos.forEach((todo) => {
-      todo.tasks.forEach((task) => {
-        if (task.status === "done") done++;
-        else pending++;
-      });
-    });
-    return { done, pending };
-  }, [todos]);
-const data = {
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // pozivamo oba controllera
+        const notesResponse = await api.get("/notes/stats");
+        const todosResponse = await api.get("/todolists/stats");
+
+        setStats({
+          notesCount: notesResponse.data.notesCount,
+          todosCount: todosResponse.data.todosCount,
+          done: todosResponse.data.done,
+          pending: todosResponse.data.pending,
+        });
+      } catch (err) {
+        console.error("Greška pri učitavanju statistika:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []); // samo na mount-u
+
+  if (loading) return <p>Loading stats...</p>;
+
+  const data = {
     labels: ["Notes", "To-Do Lists", "Pending Tasks", "Done Tasks"],
     datasets: [
       {
         label: "Count",
-        data: [notesCount, todosCount, taskStats.pending, taskStats.done],
+        data: [stats.notesCount, stats.todosCount, stats.pending, stats.done],
         backgroundColor: ["#4e79a7", "#f28e2b", "#e15759", "#76b7b2"],
       },
     ],
   };
-
   const options = {
     responsive: false,
     plugins: {
@@ -65,16 +88,16 @@ const data = {
     </section>
       <div style={{ display: "flex", gap: "2em" }}>
         <div>
-          <strong>Total Notes:</strong> {notesCount}
+          <strong>Total Notes:</strong> {stats.notesCount}
         </div>
         <div>
-          <strong>Total To-Do Lists:</strong> {todosCount}
+          <strong>Total To-Do Lists:</strong> {stats.todosCount}
         </div>
         <div>
-          <strong>Pending Tasks:</strong> {taskStats.pending}
+          <strong>Pending Tasks:</strong> {stats.pending}
         </div>
         <div>
-          <strong>Done Tasks:</strong> {taskStats.done}
+          <strong>Done Tasks:</strong> {stats.done}
         </div>
       </div>
     </section>
@@ -82,3 +105,5 @@ const data = {
 }
 
 export default DashboardStats;
+
+

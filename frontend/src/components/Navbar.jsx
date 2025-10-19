@@ -1,16 +1,3 @@
-/*import { Link } from "react-router-dom";
-
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <Link to="/dashboard">Dashboard</Link>
-      <Link to="/about">About</Link>
-      <Link to="/">Logout</Link>
-    </nav>
-  );
-}
-
-export default Navbar;*/
 import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
@@ -32,7 +19,7 @@ function Navbar() {
           <Link to="/dashboard">Dashboard</Link>
           <Link to="/about">About</Link>
           {user?.role === "admin" && <Link to="/users">Users</Link>}
-          <button onClick={handleLogout}>Logout</button>
+          <button className="btn" style={{fontSize: "13px", marginTop: "0em"}} onClick={handleLogout}>Logout</button>
         </>
       ) : (
         <>

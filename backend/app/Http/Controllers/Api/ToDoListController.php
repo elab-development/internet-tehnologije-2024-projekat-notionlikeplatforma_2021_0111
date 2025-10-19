@@ -66,9 +66,7 @@ class ToDoListController extends Controller
      */
     public function show($id)
     {
-        /*$list = auth()->user()->todoLists()->with('tasks')->findOrFail($id);
-        return response()->json($list);*/
-         $list = TodoList::findOrFail($id);
+        $list = auth()->user()->todoLists()->with('tasks')->findOrFail($id);
         return new ToDoListResource($list);
     }
 
@@ -112,13 +110,35 @@ class ToDoListController extends Controller
      */
     public function destroy($id)
     {
-        $list = auth()->user()->todoLists()->findOrFail($id);
+    $user = auth()->user();
+    $list = $user->todoLists()->findOrFail($id);
+
+    \DB::beginTransaction();
+    try {
+        // prvo brise sve remindere koji su vezani za taskove u ovoj listi
+        \DB::table('reminders')
+            ->whereIn('task_id', function ($query) use ($list) {
+                $query->select('id')
+                      ->from('tasks')
+                      ->where('todo_list_id', $list->id);
+            })
+            ->delete();
+
+        // zatim brise sve taskove iz liste
+        \DB::table('tasks')->where('todo_list_id', $list->id)->delete();
+
+        // na kraju brise samu listu
         $list->delete();
 
-        return response()->json([
-            'message' => 'To-do lista uspešno obrisana'
-        ]);
+        \DB::commit();
+
+        return response()->json(['message' => 'Lista i svi povezani podaci su uspešno obrisani.']);
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        return response()->json(['message' => 'Greška pri brisanju liste: ' . $e->getMessage()], 500);
     }
+}
+    
     public function search(Request $request)
 {
     $query = $request->input('q');
@@ -142,4 +162,27 @@ class ToDoListController extends Controller
 
     return ToDoListResource::collection($todolists);
 }
+
+public function stats() {
+    $userId = auth()->id();
+
+    $todosCount = \DB::table('todo_lists')->where('user_id', $userId)->count();
+
+    $tasks = \DB::table('tasks')
+        ->join('todo_lists', 'tasks.todo_list_id', '=', 'todo_lists.id')
+        ->where('todo_lists.user_id', $userId)
+        ->select('tasks.status')
+        ->get();
+
+    $done = $tasks->where('status', 'done')->count();
+    $pending = $tasks->where('status', 'pending')->count();
+
+    return response()->json([
+        'todosCount' => $todosCount,
+        'done' => $done,
+        'pending' => $pending,
+    ]);
+}
+
+
 }

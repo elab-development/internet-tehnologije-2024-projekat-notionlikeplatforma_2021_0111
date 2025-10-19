@@ -18,10 +18,11 @@ function RegisterPage() {
 
     try {
       const response = await api.post("/register", { name, email, password });
-
+      
       // Nakon uspešne registracije možemo direktno logovati korisnika
-      localStorage.setItem("token", response.data.token);
-      localStorage.setItem("user", JSON.stringify(response.data.data));
+      const response2 = await api.post("/login", { email, password });
+      localStorage.setItem("token", response2.data.token);
+      localStorage.setItem("user", JSON.stringify(response2.data.data));
 
       navigate("/dashboard");
     } catch (error) {

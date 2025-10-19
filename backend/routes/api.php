@@ -21,7 +21,6 @@ use App\Http\Controllers\Api\ReminderController;
 Route::post('/register', [UserController::class, 'register']);  // registracija
 Route::post('/login', [UserController::class, 'login'])->name('login');        // login
 Route::put('/user/reset-password', [UserController::class, 'resetPassword']);
-//rute za usera
 
 //middleware gleda da li je korisnik ulogovan
 Route::middleware('auth:sanctum')->group(function () {
@@ -34,8 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes/search', [NoteController::class, 'search']);
     Route::get('/notes/filter', [NoteController::class, 'filter']);
     Route::get('/notes/paginate', [NoteController::class, 'paginate']);
+    Route::get('/notes/stats', [NoteController::class, 'stats']);
     Route::apiResource('notes', NoteController::class);
-    
+    Route::get('/todolists/stats', [ToDoListController::class, 'stats']);
     // TodoList rute
     Route::get('/todolists/search', [ToDoListController::class, 'search']);
     Route::get('/todolists', [ToDoListController::class, 'index']);
@@ -45,13 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/todolists/{id}', [ToDoListController::class, 'destroy']);
     
 
-    // Taskovi vezani za todo listu
     Route::get('/todolists/{todolist}/tasks/search', [TaskController::class, 'search']);
     Route::get('/todolists/{todolist}/tasks/filter', [TaskController::class, 'filter']);
     Route::get('/todolists/{todolist}/tasks', [TaskController::class, 'index']); // prikaz svih taskova za listu
     Route::post('/todolists/{todolist}/tasks', [TaskController::class, 'store']); // kreiranje taska u listi
 
-    // Pojedinačni taskovi
     Route::put('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'update']); // update taska
     Route::delete('/todolists/{todolist}/tasks/{task}', [TaskController::class, 'destroy']);
     Route::get('/reminders/search', [ReminderController::class, 'search']);
@@ -60,18 +58,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reminders/{id}', [ReminderController::class, 'show']);
     Route::put('/reminders/{id}', [ReminderController::class, 'update']);
     Route::delete('/reminders/{id}', [ReminderController::class, 'destroy']);
+    
+    
+    
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::delete('/users/{id}', [UserController::class, 'deleteUser']);
 });
 
-//rute za tasks
- /*
-Route::middleware('auth')->group(function () {
-    Route::get('/tasks', [TaskController::class, 'index']);
-    Route::post('/tasks', [TaskController::class, 'store']);
-    Route::put('/tasks/{id}', [TaskController::class, 'update']);
-    Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
-});*/
 

@@ -62,11 +62,6 @@ return (new UserResource($user))
 }
 public function logout(Request $request)
 {
-    /*Auth::logout();
-
-    return response()->json([
-        'message' => 'Uspešno odjavljen'
-    ]);*/
     $request->user()->currentAccessToken()->delete(); // briše trenutni token
 
     return response()->json([

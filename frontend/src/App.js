@@ -16,11 +16,11 @@ function App() {
       <Navbar />
       <Routes>*/
         {/* Javna ruta */}
-        //<Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
         {/* Zaštićene rute */}
-        /*<Route
+        <Route
           path="/dashboard"
           element={
             <PrivateRoute>
@@ -54,7 +54,7 @@ function App() {
         />
 
         {/* Javna ruta */}
-        /*<Route path="/about" element={<About />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );
